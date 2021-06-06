@@ -1,0 +1,27 @@
+[[remoting-opentelemetry-plugin]]
+= Jenkins Remoting monitoring with OpenTelemetry Plugin
+:toc: macro
+:toc-title:
+
+[#introduction]
+== Introduction
+
+Collect the monitoring data of Jenkins Remoting through OpenTelemetry.
+
+toc::[]
+
+[#getting-started]
+== Getting started
+
+TODO Tell users how to configure your plugin here, include screenshots, pipeline examples and
+configuration-as-code examples.
+
+[#contributing]
+== Contributing
+
+Refer to our link:CONTRIBUTING.adoc[contribution guidelines].
+
+[#license]
+== LICENSE
+
+Licensed under MIT, see link:LICENSE[LICENSE]
