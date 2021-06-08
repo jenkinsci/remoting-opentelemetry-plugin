@@ -30,7 +30,7 @@
         <java.level>8</java.level>
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     </properties>
-    <name>Jenkins Remoting monitoring with OpenTelemetry</name>
+    <name>Remoting monitoring with OpenTelemetry</name>
     <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
     <dependencyManagement>
