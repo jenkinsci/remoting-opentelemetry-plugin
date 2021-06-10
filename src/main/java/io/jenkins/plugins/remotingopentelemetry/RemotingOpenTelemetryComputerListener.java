@@ -4,20 +4,21 @@ import hudson.Extension;
 import hudson.model.Computer;
 import hudson.model.TaskListener;
 import hudson.slaves.ComputerListener;
+import io.jenkins.plugins.remotingopentelemetry.commands.SyncMonitoringEngineCommand;
 import jenkins.model.Jenkins.MasterComputer;
 
 import java.io.IOException;
 
 /**
- * Sample extension point
+ * Transfers the monitoring engine and the configurations to the online agents
+ *
+ * @author Akihiro Kiuchi
  */
 @Extension
 public final class RemotingOpenTelemetryComputerListener extends ComputerListener {
     @Override
     public final void onOnline(Computer c, TaskListener listener) throws IOException, InterruptedException {
         if (c instanceof MasterComputer) return;
-        if (c.getChannel().call(new CheckIfRunWithEngineCommand())) {
-            System.out.println("Node " + c.getNode().getNodeName() + " is run with Engine.");
-        }
+        c.getChannel().call(new SyncMonitoringEngineCommand());
     }
 }
