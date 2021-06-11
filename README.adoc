@@ -3,6 +3,8 @@
 :toc: macro
 :toc-title:
 
+image::https://img.shields.io/badge/chat-on%20slack-yellow?logo=slack[link="https://cdeliveryfdn.slack.com/archives/C023E83AMAL"]
+
 [#introduction]
 == Introduction
 
@@ -25,3 +27,7 @@ Refer to our link:CONTRIBUTING.adoc[contribution guidelines].
 == LICENSE
 
 Licensed under MIT, see link:LICENSE[LICENSE]
+
+[#links]
+== Links
+* link:https://www.jenkins.io/projects/gsoc/2021/projects/remoting-monitoring/[Jenkins.io project page]
