@@ -1,5 +1,7 @@
 package io.jenkins.plugins.remotingopentelemetry.engine;
 
+import io.jenkins.plugins.remotingopentelemetry.engine.listener.RootListener;
+
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -75,21 +77,36 @@ public final class MonitoringEngine extends Thread {
         );
     }
 
+    private final String THREAD_NAME = "Monitoring Engine";
+    private final RootListener rootListener = new RootListener();
+
     /**
      * Disable the instantiation outside this class.
      */
     private MonitoringEngine () {
         setDaemon(true);
-        setName("Monitoring Engine");
-        // TODO: implements monitoring functionalities
+        setName(THREAD_NAME);
+
+        // TODO: pass configuration to this.
+        OpenTelemetryProxy.build();
+    }
+
+    @Override
+    public void start() {
+        rootListener.preStartMonitoringEngine();
+        super.start();
     }
 
     @Override
     public void run() {
+        Exception exception = null;
         try {
             block();
         } catch (InterruptedException e) {
-            // TODO: finalize (remove listeners, etc...)
+            exception = e;
+        } finally {
+            rootListener.onTerminateMonitoringEngine(exception);
+            OpenTelemetryProxy.clean();
         }
     }
 
