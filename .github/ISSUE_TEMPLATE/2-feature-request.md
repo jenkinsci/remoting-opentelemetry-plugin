@@ -1,6 +1,6 @@
 ---
 name: "🚀 Feature request"
-labels: feature
+labels: enhancement
 about: I have a suggestion
 ---
 
