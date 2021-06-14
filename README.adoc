@@ -8,6 +8,8 @@ image::https://img.shields.io/badge/chat-on%20slack-yellow?logo=slack[link="http
 [#introduction]
 == Introduction
 
+This is the branch for ci test
+
 Collect the monitoring data of Jenkins Remoting through OpenTelemetry.
 
 toc::[]
