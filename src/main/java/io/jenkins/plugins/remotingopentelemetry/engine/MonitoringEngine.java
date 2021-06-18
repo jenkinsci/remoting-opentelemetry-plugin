@@ -1,7 +1,12 @@
 package io.jenkins.plugins.remotingopentelemetry.engine;
 
 import io.jenkins.plugins.remotingopentelemetry.engine.listener.RootListener;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.trace.SpanProcessor;
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
+import io.opentelemetry.sdk.trace.export.SpanExporter;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -16,14 +21,13 @@ public final class MonitoringEngine extends Thread {
      * The current engine will be killed if exists.
      * @throws InterruptedException
      */
-    @Nullable
-    static public synchronized void launch() throws InterruptedException {
+    static public synchronized void launch(EngineConfiguration config) throws InterruptedException {
         Thread current = MonitoringEngine.current();
         if (current != null) {
             current.interrupt();
             current.join();
         }
-        current = new MonitoringEngine();
+        current = new MonitoringEngine(config);
         current.start();
     }
 
@@ -77,18 +81,23 @@ public final class MonitoringEngine extends Thread {
         );
     }
 
+    @Nonnull
     private final String THREAD_NAME = "Monitoring Engine";
+
+    @Nonnull
     private final RootListener rootListener = new RootListener();
 
     /**
      * Disable the instantiation outside this class.
      */
-    private MonitoringEngine () {
+    private MonitoringEngine (EngineConfiguration config) {
         setDaemon(true);
         setName(THREAD_NAME);
 
-        // TODO: pass configuration to this.
-        OpenTelemetryProxy.build();
+        SpanExporter exporter = RemotingSpanExporterProvider.create(config);
+        Resource resource = RemotingResourceProvider.create();
+        SpanProcessor processor = SimpleSpanProcessor.create(exporter);
+        OpenTelemetryProxy.build(processor, resource);
     }
 
     @Override

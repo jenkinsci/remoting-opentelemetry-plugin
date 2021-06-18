@@ -11,11 +11,15 @@ import java.util.EventListener;
  * Handles the events from {@link MonitoringEngine} and setups child event listeners.
  */
 public class RootListener implements EventListener {
+
     private final RemoteEngineListener remoteEngineListener = new RemoteEngineListener();
 
     @Nullable
     private Engine remoteEngine = null;
 
+    /**
+     * Invoked before running the MonitoringEngine thread
+     */
     public void preStartMonitoringEngine() {
         remoteEngine = Engine.current();
         if (remoteEngine != null) {
@@ -27,13 +31,18 @@ public class RootListener implements EventListener {
         }
     }
 
+    /**
+     * Invoked when terminating the MonitoringEngine thread
+     */
     public void onTerminateMonitoringEngine() {
         onTerminateMonitoringEngine(null);
     }
+
     public void onTerminateMonitoringEngine(Exception e) {
         if (remoteEngine != null) {
             remoteEngine.removeListener(remoteEngineListener);
         }
+
         ChannelKeepAliveSpan channelKeepAliveSpan = ChannelKeepAliveSpan.current();
         if (channelKeepAliveSpan != null) {
             channelKeepAliveSpan.end();

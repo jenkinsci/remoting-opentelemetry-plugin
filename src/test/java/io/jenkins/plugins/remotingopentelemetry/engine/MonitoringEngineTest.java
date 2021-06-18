@@ -9,18 +9,20 @@ import java.util.stream.Stream;
 public class MonitoringEngineTest {
     @Test
     public void testIsRunning() throws Exception {
-        MonitoringEngine.launch();
+        EngineConfiguration config = new EngineConfiguration("http://localhost");
+        MonitoringEngine.launch(config);
         assert MonitoringEngine.isRunning();
         MonitoringEngine.terminate();
         assert !MonitoringEngine.isRunning();
-        MonitoringEngine.launch();
+        MonitoringEngine.launch(config);
         assert MonitoringEngine.isRunning();
     }
 
     @Test
     public void testOnlyOneMonitoringThread() throws Exception {
-        MonitoringEngine.launch();
-        MonitoringEngine.launch();
+        EngineConfiguration config = new EngineConfiguration("http://localhost");
+        MonitoringEngine.launch(config);
+        MonitoringEngine.launch(config);
         ThreadGroup currentThreadGroup = Thread.currentThread().getThreadGroup();
         Thread[] siblingThreads = new Thread[currentThreadGroup.activeCount()];
         currentThreadGroup.enumerate(siblingThreads);
