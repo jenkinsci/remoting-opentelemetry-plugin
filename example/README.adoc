@@ -1,0 +1,55 @@
+== Setup with development environment
+
+=== 0. Setup Docker and Docker compose
+
+- https://docs.docker.com/get-docker/
+- https://docs.docker.com/compose/install/
+
+=== 1. Setup OpenTelemetry Collector, Jaeger and Zipkin
+
+....
+$ git clone https://github.com/jenkinsci/remoting-opentelemetry-plugin.git
+$ cd example
+$ docker-compose up
+....
+
+=== 2. Setup development Jenkins server
+
+At the project root,
+
+....
+mvn hpi:run
+....
+
+==== Configure this plugin
+
+Access: http://localhost:8080/jenkins/configureTools/
+(Global Tool Configuration page)
+
+In the "Remoting OpenTelemetry Plugin" section, set "Endpoint" to `http://localhost:55680`
+
+This value is the OpenTelemetry Collector endpoint used on the *agent* side.
+
+=== 3. Setup Jenkins agent
+
+. Create a new node with Jenkins server UI
+** Use JNLP to connect agent. i.e., Set "Launch Method" to "Launch agent by connecting it to the master"
+** Set "Name" and "Remote root directory" as you like, and we will use the values to launch agents.
+. Run and connect new node
+** Use helper function
+
+ ./example/launch_agent.sh -w /path/to/work/dir -n node-name
+
+=== 4. Create Span
+
+As we have only Channel Keep-Alive span now, we need to disconnect agents to produce spans.
+
+Try disconnecting agents from the agent detail page.
+
+=== 5. Open Jaeger / Zipkin UI
+
+Jaeger: http://localhost:16686/
+
+Zipkin: http://localhost:9411/
+
+Channel KeepAlive span will appear.

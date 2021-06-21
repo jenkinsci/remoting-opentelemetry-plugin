@@ -1,0 +1,32 @@
+receivers:
+    otlp:
+        protocols:
+            grpc:
+
+exporters:
+    jaeger:
+        endpoint: jaeger:14250
+        insecure: true
+    zipkin:
+        endpoint: http://zipkin:9411/api/v2/spans
+        insecure: true
+
+processors:
+    batch:
+
+extensions:
+    health_check:
+    pprof:
+        endpoint: :1888
+    zpages:
+        endpoint: :55679
+
+service:
+    extensions: [pprof, zpages, health_check]
+    pipelines:
+        traces:
+            receivers: [otlp]
+            processors: [batch]
+            exporters:
+                - jaeger
+                - zipkin
