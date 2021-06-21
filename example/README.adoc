@@ -15,9 +15,8 @@ $ docker-compose up
 
 === 2. Setup development Jenkins server
 
-At the project root,
-
 ....
+cd jenkins-plugin
 mvn hpi:run
 ....
 
