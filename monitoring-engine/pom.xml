@@ -51,7 +51,7 @@
         <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-semconv</artifactId>
-            <version>${opentelemetry.version}-alpha</version>
+            <version>${opentelemetry.version}</version>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry</groupId>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-exporter-otlp-metrics</artifactId>
-            <version>${opentelemetry.version}-alpha</version>
+            <version>${opentelemetry.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -85,7 +85,7 @@
         <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-sdk-metrics</artifactId>
-            <version>${opentelemetry.version}-alpha</version>
+            <version>${opentelemetry.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
