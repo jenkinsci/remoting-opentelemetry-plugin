@@ -8,9 +8,9 @@
         <relativePath />
     </parent>
     <groupId>io.jenkins.plugins</groupId>
-    <artifactId>remoting-opentelemetry</artifactId>
+    <artifactId>remoting-opentelemetry-parent</artifactId>
     <version>${revision}${changelist}</version>
-    <packaging>hpi</packaging>
+    <packaging>pom</packaging>
     <properties>
         <revision>1.0</revision>
         <changelist>-SNAPSHOT</changelist>
@@ -19,7 +19,7 @@
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
         <opentelemetry.version>1.2.0</opentelemetry.version>
     </properties>
-    <name>Remoting monitoring with OpenTelemetry</name>
+    <name>Remoting monitoring with OpenTelemetry Parent POM</name>
     <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
     <dependencyManagement>
@@ -47,100 +47,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-sdk</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-semconv</artifactId>
-            <version>${opentelemetry.version}-alpha</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-sdk-trace</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-exporter-otlp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-exporter-otlp-metrics</artifactId>
-            <version>${opentelemetry.version}-alpha</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty-shaded</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-exporter-otlp-trace</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-exporter-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-sdk-metrics</artifactId>
-            <version>${opentelemetry.version}-alpha</version>
-        </dependency>
-
-        <dependency> <!-- see maskClasses config -->
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <!--
-            Don't bump beyond 20.0 as 21.0 removes com.google.common.util.concurrent.MoreExecutors#sameThreadExecutor()
-            that is used by
-            org.jenkinsci.plugins.workflow.support.concurrent.Futures.addCallback(com.google.common.util.concurrent.ListenableFuture<V>, com.google.common.util.concurrent.FutureCallback<? super V>)
-            See https://github.com/google/guava/wiki/Release21
-            -->
-            <version>20.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.15.7</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-exporter-otlp-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.perfmark</groupId>
-            <artifactId>perfmark-api</artifactId>
-            <version>0.23.0</version>
-        </dependency>
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jenkins-ci.tools</groupId>
-                <artifactId>maven-hpi-plugin</artifactId>
-                <configuration>
-                    <!-- JENKINS-50520: since we need a custom version of Guava -->
-                    <maskClasses>com.google.common.</maskClasses>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <licenses>
         <license>
@@ -176,4 +82,10 @@
             <email>aki.develop8128@gmail.com</email>
         </developer>
     </developers>
+
+    <modules>
+        <module>monitoring-engine</module>
+        <module>jenkins-plugin</module>
+    </modules>
+
 </project>

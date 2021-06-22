@@ -31,7 +31,7 @@ public class RemotingOpenTelemetryConfiguration extends GlobalConfiguration {
         return ExtensionList.lookupSingleton(RemotingOpenTelemetryConfiguration.class);
     }
 
-    private String endpoint;
+    private String endpoint = "";
 
     public RemotingOpenTelemetryConfiguration() {
         load();
