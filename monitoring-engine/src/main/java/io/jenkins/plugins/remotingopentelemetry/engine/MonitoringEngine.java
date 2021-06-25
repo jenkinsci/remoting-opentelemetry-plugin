@@ -3,7 +3,7 @@ package io.jenkins.plugins.remotingopentelemetry.engine;
 import io.jenkins.plugins.remotingopentelemetry.engine.listener.RootListener;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SpanProcessor;
-import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 
 import javax.annotation.Nonnull;
@@ -96,7 +96,7 @@ public final class MonitoringEngine extends Thread {
 
         SpanExporter exporter = RemotingSpanExporterProvider.create(config);
         Resource resource = RemotingResourceProvider.create();
-        SpanProcessor processor = SimpleSpanProcessor.create(exporter);
+        SpanProcessor processor = BatchSpanProcessor.builder(exporter).build();
         OpenTelemetryProxy.build(processor, resource);
     }
 
