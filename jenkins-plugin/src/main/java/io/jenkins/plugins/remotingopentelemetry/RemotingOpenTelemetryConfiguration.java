@@ -55,8 +55,8 @@ public class RemotingOpenTelemetryConfiguration extends GlobalConfiguration {
         applyConfiguration();
     }
 
-    public EngineConfiguration export() {
-        return new EngineConfiguration(endpoint);
+    public EngineConfiguration export(String nodeName) {
+        return new EngineConfiguration(endpoint, nodeName);
     }
 
     private void applyConfiguration() {
@@ -65,8 +65,10 @@ public class RemotingOpenTelemetryConfiguration extends GlobalConfiguration {
             if (c == null || c instanceof MasterComputer || c.isOffline()) continue;
             VirtualChannel ch = c.getChannel();
             if (ch == null) continue;
+            Node node = c.getNode();
+            String nodeName = node == null ? "unknown" : node.getNodeName();
             try {
-                ch.call(new UpdateMonitoringEngineConfigCommand(export()));
+                ch.call(new UpdateMonitoringEngineConfigCommand(export(nodeName)));
             } catch (InterruptedException | IOException e) {
                 String command = UpdateMonitoringEngineConfigCommand.class.getName();
                 LOGGER.log(Level.WARNING, "Fail to call " + command + " for " + n.getNodeName(), e);

@@ -45,10 +45,10 @@ As we have only Channel Keep-Alive span now, we need to disconnect agents to pro
 
 Try disconnecting agents from the agent detail page.
 
-=== 5. Open Jaeger / Zipkin UI
+=== 5. Open Jaeger / Zipkin UI / Prometheus
 
 Jaeger: http://localhost:16686/
 
 Zipkin: http://localhost:9411/
 
-Channel KeepAlive span will appear.
+Prometheus: http://localhost:9090/

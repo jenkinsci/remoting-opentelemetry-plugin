@@ -13,7 +13,7 @@ public class SyncMonitoringEngineCommandTest {
     @Test
     public void test() throws Exception {
         DumbSlave n = j.createOnlineSlave();
-        EngineConfiguration config = new EngineConfiguration("http://localhost");
+        EngineConfiguration config = new EngineConfiguration("http://localhost", "test");
         n.getChannel().call(new SyncMonitoringEngineCommand(config));
     }
 }

@@ -38,7 +38,9 @@ public final class RemotingOpenTelemetryComputerListener extends ComputerListene
 
         Channel ch = (Channel) vc;
 
-        EngineConfiguration config = RemotingOpenTelemetryConfiguration.get().export();
+        Node node = c.getNode();
+        String nodeName = node == null ? "unknown" : node.getNodeName();
+        EngineConfiguration config = RemotingOpenTelemetryConfiguration.get().export(nodeName);
 
         try {
             URL jar = Which.jarFile(EngineConfiguration.class).toURI().toURL();
@@ -46,8 +48,6 @@ public final class RemotingOpenTelemetryComputerListener extends ComputerListene
             ch.call(new SyncMonitoringEngineCommand(config));
         } catch (IOException | InterruptedException e) {
             String command = SyncMonitoringEngineCommand.class.getName();
-            Node node = c.getNode();
-            String nodeName = node == null ? "unknown" : node.getNodeName();
             LOGGER.log(Level.WARNING, "Fail to call " + command + " for " + nodeName , e);
         }
     }

@@ -12,9 +12,18 @@ services:
         ports:
             - 9411:9411
 
+    prometheus:
+        image: prom/prometheus
+        ports:
+            - 9090:9090
+        volumes:
+            - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
     otel_collector:
         image: otel/opentelemetry-collector
         command: ["--config=/otel-collector-config.yaml"]
+        expose:
+            - 8889
         ports:
             - 55680:55680
         volumes:
