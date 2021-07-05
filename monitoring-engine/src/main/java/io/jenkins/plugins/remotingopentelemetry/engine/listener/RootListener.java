@@ -1,8 +1,10 @@
 package io.jenkins.plugins.remotingopentelemetry.engine.listener;
 
 import hudson.remoting.Engine;
-import io.jenkins.plugins.remotingopentelemetry.engine.span.ChannelKeepAliveSpan;
+import io.jenkins.plugins.remotingopentelemetry.engine.span.ChannelInitializationSpan;
 import io.jenkins.plugins.remotingopentelemetry.engine.MonitoringEngine;
+import io.jenkins.plugins.remotingopentelemetry.engine.span.JnlpEndpointResolvingSpan;
+import io.jenkins.plugins.remotingopentelemetry.engine.span.JnlpInitializationSpan;
 
 import javax.annotation.Nullable;
 import java.util.EventListener;
@@ -24,10 +26,6 @@ public class RootListener implements EventListener {
         remoteEngine = Engine.current();
         if (remoteEngine != null) {
             remoteEngine.addListener(remoteEngineListener);
-
-            // Currently, we have no way to catch first connection established event,
-            // so instead, we start ChannelKeepAliveSpan at this point.
-            new ChannelKeepAliveSpan().start();
         }
     }
 
@@ -38,14 +36,30 @@ public class RootListener implements EventListener {
         onTerminateMonitoringEngine(null);
     }
 
-    public void onTerminateMonitoringEngine(Exception e) {
+    public void onTerminateMonitoringEngine(@Nullable Exception e) {
         if (remoteEngine != null) {
             remoteEngine.removeListener(remoteEngineListener);
         }
 
-        ChannelKeepAliveSpan channelKeepAliveSpan = ChannelKeepAliveSpan.current();
-        if (channelKeepAliveSpan != null) {
-            channelKeepAliveSpan.end();
+        // remove all running spans
+
+        JnlpEndpointResolvingSpan resolveJnlpEndpointSpan = JnlpEndpointResolvingSpan.current();
+        if (resolveJnlpEndpointSpan != null) {
+            if (e != null) resolveJnlpEndpointSpan.recordException(e);
+            resolveJnlpEndpointSpan.end();
         }
+
+        JnlpInitializationSpan jnlpInitializationSpan = JnlpInitializationSpan.current();
+        if (jnlpInitializationSpan != null) {
+            if (e != null) jnlpInitializationSpan.recordException(e);
+            jnlpInitializationSpan.end();
+        }
+
+        ChannelInitializationSpan channelInitializationSpan = ChannelInitializationSpan.current();
+        if (channelInitializationSpan != null) {
+            if (e != null) channelInitializationSpan.recordException(e);
+            channelInitializationSpan.end();
+        }
+
     }
 }
