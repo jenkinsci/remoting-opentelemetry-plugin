@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 public class MonitoringEngineTest {
     @Test
     public void testIsRunning() throws Exception {
-        EngineConfiguration config = new EngineConfiguration("http://localhost");
+        EngineConfiguration config = new EngineConfiguration("http://localhost", "test");
         MonitoringEngine.launch(config);
         assert MonitoringEngine.isRunning();
         MonitoringEngine.terminate();
@@ -20,7 +20,7 @@ public class MonitoringEngineTest {
 
     @Test
     public void testOnlyOneMonitoringThread() throws Exception {
-        EngineConfiguration config = new EngineConfiguration("http://localhost");
+        EngineConfiguration config = new EngineConfiguration("http://localhost", "test");
         MonitoringEngine.launch(config);
         MonitoringEngine.launch(config);
         ThreadGroup currentThreadGroup = Thread.currentThread().getThreadGroup();

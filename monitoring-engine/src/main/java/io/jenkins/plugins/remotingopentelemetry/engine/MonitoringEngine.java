@@ -1,6 +1,11 @@
 package io.jenkins.plugins.remotingopentelemetry.engine;
 
 import io.jenkins.plugins.remotingopentelemetry.engine.listener.RootListener;
+import io.jenkins.plugins.remotingopentelemetry.engine.metric.GarbageCollectorMXBeanMetric;
+import io.jenkins.plugins.remotingopentelemetry.engine.metric.MemoryMXBeanMetric;
+import io.jenkins.plugins.remotingopentelemetry.engine.metric.MemoryPoolMXBeanMetric;
+import io.jenkins.plugins.remotingopentelemetry.engine.metric.OperatingSystemMXBeanMetric;
+import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
@@ -94,10 +99,11 @@ public final class MonitoringEngine extends Thread {
         setDaemon(true);
         setName(THREAD_NAME);
 
-        SpanExporter exporter = RemotingSpanExporterProvider.create(config);
-        Resource resource = RemotingResourceProvider.create();
-        SpanProcessor processor = BatchSpanProcessor.builder(exporter).build();
-        OpenTelemetryProxy.build(processor, resource);
+        SpanExporter spanExporter = RemotingSpanExporterProvider.create(config);
+        MetricExporter metricExporter = RemotingMetricExporterProvider.create(config);
+        Resource resource = RemotingResourceProvider.create(config);
+        SpanProcessor spanProcessor = BatchSpanProcessor.builder(spanExporter).build();
+        OpenTelemetryProxy.build(spanProcessor, metricExporter, resource, config);
     }
 
     @Override
@@ -108,6 +114,12 @@ public final class MonitoringEngine extends Thread {
 
     @Override
     public void run() {
+        new OperatingSystemMXBeanMetric().register();
+        new MemoryMXBeanMetric().register();
+        new MemoryPoolMXBeanMetric().register();
+        new GarbageCollectorMXBeanMetric().register();
+        OpenTelemetryProxy.startIntervalMetricReader();
+
         Exception exception = null;
         try {
             block();

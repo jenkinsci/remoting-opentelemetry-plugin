@@ -12,6 +12,79 @@ Collect the monitoring data of Jenkins Remoting through OpenTelemetry.
 
 toc::[]
 
+== Features
+
+=== Resource
+
+|===
+|key|value|description
+|service_namespace|"jenkins"|This value will be configurable in the future.
+|service_namespace|"jenkins-agent"|This value will be configurable in the future.
+|service_instance_id|Node name|
+|===
+
+
+=== Spans
+
+TBD
+
+=== Metrics
+
+Following metrics will be collected.
+
+|===
+|metrics|unit| label | key | description
+|system.cpu.load|1||
+|System CPU load. See `com.sun.management.OperatingSystemMXBean.getSystemCpuLoad`
+
+|system.cpu.load.average.1m|||
+|System CPU load average 1 minute See `java.lang.management.OperatingSystemMXBean.getSystemLoadAverage`
+
+|system.memory.usage|bytes|state|`used`, `free`
+|
+see `com.sun.management.OperatingSystemMXBean.getTotalPhysicalMemorySize`
+and `com.sun.management.OperatingSystemMXBean.getFreePhysicalMemorySize`
+
+|system.memory.utilization|1||
+|
+System memory utilization,
+see `com.sun.management.OperatingSystemMXBean.getTotalPhysicalMemorySize`
+and `com.sun.management.OperatingSystemMXBean.getFreePhysicalMemorySize`.
+Report 0% if no physical memory is discovered by the JVM.
+
+|system.paging.usage|bytes|state|`used`, `free`
+|
+see `com.sun.management.OperatingSystemMXBean.getFreeSwapSpaceSize`
+and `com.sun.management.OperatingSystemMXBean.getTotalSwapSpaceSize`.
+
+|system.paging.utilization|1||
+|
+see `com.sun.management.OperatingSystemMXBean.getFreeSwapSpaceSize`
+and `com.sun.management.OperatingSystemMXBean.getTotalSwapSpaceSize`.
+Report 0% if no swap memory is discovered by the JVM.
+
+|process.cpu.load|%||
+|Process CPU load. See `com.sun.management.OperatingSystemMXBean.getProcessCpuLoad`.
+
+|process.cpu.time|ns||
+|Process CPU time. See `com.sun.management.OperatingSystemMXBean.getProcessCpuTime`.
+
+.2+|runtime.jvm.memory.area .2+|bytes|type|`used`, `committed`, `max`
+.2+|see link:https://docs.oracle.com/en/java/javase/11/docs/api/java.management/java/lang/management/MemoryUsage.html[MemoryUsage]
+|area|`heap`, `non_heap`
+
+.2+|runtime.jvm.memory.pool .2+|bytes|type|`used`, `committed`, `max`
+.2+|see link:https://docs.oracle.com/en/java/javase/11/docs/api/java.management/java/lang/management/MemoryUsage.html[MemoryUsage]
+|pool|`PS Eden Space`, `G1 Old Gen`...
+
+|runtime.jvm.gc.time|ms|gc| `G1 Young Generation`, `G1 Old Generation`, ...
+|see link:https://docs.oracle.com/en/java/javase/11/docs/api/jdk.management/com/sun/management/GarbageCollectorMXBean.html[GarbageCollectorMXBean]
+
+|runtime.jvm.gc.count|1|gc| `G1 Young Generation`, `G1 Old Generation`, ...
+|see link:https://docs.oracle.com/en/java/javase/11/docs/api/jdk.management/com/sun/management/GarbageCollectorMXBean.html[GarbageCollectorMXBean]
+
+|===
+
 [#getting-started]
 == Getting started
 

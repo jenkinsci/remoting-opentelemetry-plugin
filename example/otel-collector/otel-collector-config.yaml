@@ -10,6 +10,10 @@ exporters:
     zipkin:
         endpoint: http://zipkin:9411/api/v2/spans
         insecure: true
+    prometheus:
+        endpoint: 0.0.0.0:8889
+        resource_to_telemetry_conversion:
+            enabled: true
 
 processors:
     batch:
@@ -24,9 +28,17 @@ extensions:
 service:
     extensions: [pprof, zpages, health_check]
     pipelines:
+        metrics:
+            receivers:
+                - otlp
+            exporters:
+                - prometheus
+
         traces:
-            receivers: [otlp]
-            processors: [batch]
+            receivers:
+                - otlp
+            processors:
+                - batch
             exporters:
                 - jaeger
                 - zipkin

@@ -1,12 +1,16 @@
 package io.jenkins.plugins.remotingopentelemetry.engine.listener;
 
+import io.jenkins.plugins.remotingopentelemetry.engine.EngineConfiguration;
 import io.jenkins.plugins.remotingopentelemetry.engine.OpenTelemetryProxy;
 import io.jenkins.plugins.remotingopentelemetry.engine.RemotingResourceProvider;
 import io.jenkins.plugins.remotingopentelemetry.engine.span.ChannelInitializationSpan;
 import io.jenkins.plugins.remotingopentelemetry.engine.span.JnlpEndpointResolvingSpan;
 import io.jenkins.plugins.remotingopentelemetry.engine.span.JnlpInitializationSpan;
+import io.opentelemetry.sdk.metrics.data.MetricData;
+import io.opentelemetry.sdk.metrics.testing.InMemoryMetricExporter;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter;
+import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import org.junit.After;
@@ -17,13 +21,17 @@ import org.junit.Assert;
 import java.util.List;
 
 public class RemoteEngineListenerTest {
-    InMemorySpanExporter exporter;
+    InMemorySpanExporter spanExporter;
+    InMemoryMetricExporter metricExporter;
 
     @Before
     public void setup() throws Exception {
-        exporter = InMemorySpanExporter.create();
-        Resource resource = RemotingResourceProvider.create();
-        OpenTelemetryProxy.build(SimpleSpanProcessor.create(exporter), resource);
+        EngineConfiguration config = new EngineConfiguration("http://localhost", "test");
+        spanExporter = InMemorySpanExporter.create();
+        SpanProcessor spanProcessor = SimpleSpanProcessor.create(spanExporter);
+        Resource resource = RemotingResourceProvider.create(config);
+        metricExporter = InMemoryMetricExporter.create();
+        OpenTelemetryProxy.build(spanProcessor, metricExporter, resource, config);
     }
 
     @Test
@@ -39,27 +47,27 @@ public class RemoteEngineListenerTest {
     @Test
     public void testCouldNotResolveJnlpAgentEndpoint() throws Exception {
         RemoteEngineListener listener = new RemoteEngineListener();
-        Assert.assertEquals(0, exporter.getFinishedSpanItems().size());
+        Assert.assertEquals(0, spanExporter.getFinishedSpanItems().size());
         listener.status("Locating server among [localhost]");
         listener.status("Could not resolve JNLP agent endpoint");
-        List<SpanData> spans = exporter.getFinishedSpanItems();
+        List<SpanData> spans = spanExporter.getFinishedSpanItems();
         Assert.assertEquals(2, spans.size()); // ChannelInitializationSpan and ResolveJnlpEndpointSpan
     }
 
     @Test
     public void testCouldNotResolveServverAmong() throws Exception {
         RemoteEngineListener listener = new RemoteEngineListener();
-        Assert.assertEquals(0, exporter.getFinishedSpanItems().size());
+        Assert.assertEquals(0, spanExporter.getFinishedSpanItems().size());
         listener.status("Locating server among [localhost]");
         listener.status("Could not resolve server among [localhost]");
-        List<SpanData> spans = exporter.getFinishedSpanItems();
+        List<SpanData> spans = spanExporter.getFinishedSpanItems();
         Assert.assertEquals(2, spans.size()); // ChannelInitializationSpan and ResolveJnlpEndpointSpan
     }
 
     @Test
     public void testAgentDiscoverySuccessful() throws Exception {
         RemoteEngineListener listener = new RemoteEngineListener();
-        Assert.assertEquals(0, exporter.getFinishedSpanItems().size());
+        Assert.assertEquals(0, spanExporter.getFinishedSpanItems().size());
         listener.status("Locating server among [localhost]");
         listener.status(String.format("Agent discovery successful%n"
                 + "  Agent address: %s%n"
@@ -67,7 +75,7 @@ public class RemoteEngineListenerTest {
                 + "  Identity:      %s%n",
                 "localhost", 1234, "01:23:45:67:89:ab:cd:ef:01:23:45:67:89:ab:cd:ef"
         ));
-        List<SpanData> spans = exporter.getFinishedSpanItems();
+        List<SpanData> spans = spanExporter.getFinishedSpanItems();
         Assert.assertEquals(1, spans.size()); // ResolveJnlpEndpointSpan
     }
 
@@ -81,7 +89,7 @@ public class RemoteEngineListenerTest {
                         + "  Identity:      %s%n",
                 "localhost", 1234, "01:23:45:67:89:ab:cd:ef:01:23:45:67:89:ab:cd:ef"
         ));
-        Assert.assertEquals(1, exporter.getFinishedSpanItems().size()); // ChannelInitializationSpan
+        Assert.assertEquals(1, spanExporter.getFinishedSpanItems().size()); // ChannelInitializationSpan
         listener.status("Handshaking");
         Assert.assertNotNull(JnlpInitializationSpan.current());
     }
@@ -100,7 +108,7 @@ public class RemoteEngineListenerTest {
         JnlpInitializationSpan jnlpInitializationSpan = JnlpInitializationSpan.current();
         listener.status("Protocol test-protocol is not enabled, skipping");
 
-        Assert.assertEquals(2, exporter.getFinishedSpanItems().size()); // ChannelInitializationSpan and JNLPInitializationSpan
+        Assert.assertEquals(2, spanExporter.getFinishedSpanItems().size()); // ChannelInitializationSpan and JNLPInitializationSpan
         Assert.assertNotNull(ChannelInitializationSpan.current());
         Assert.assertEquals("test-protocol", jnlpInitializationSpan.getProtocolName());
     }
@@ -119,7 +127,7 @@ public class RemoteEngineListenerTest {
         JnlpInitializationSpan jnlpInitializationSpan = JnlpInitializationSpan.current();
         listener.status("Server reports protocol test-protocol not supported, skipping");
 
-        Assert.assertEquals(2, exporter.getFinishedSpanItems().size()); // ChannelInitializationSpan and JNLPInitializationSpan
+        Assert.assertEquals(2, spanExporter.getFinishedSpanItems().size()); // ChannelInitializationSpan and JNLPInitializationSpan
         Assert.assertEquals("test-protocol", jnlpInitializationSpan.getProtocolName());
         Assert.assertNotNull(ChannelInitializationSpan.current());
     }
@@ -137,7 +145,7 @@ public class RemoteEngineListenerTest {
         listener.status("Handshaking");
         listener.status("Trying protocol: test-protocol");
 
-        Assert.assertEquals(1, exporter.getFinishedSpanItems().size()); // ChannelInitializationSpan
+        Assert.assertEquals(1, spanExporter.getFinishedSpanItems().size()); // ChannelInitializationSpan
         Assert.assertEquals("test-protocol", JnlpInitializationSpan.current().getProtocolName());
     }
 
@@ -154,7 +162,7 @@ public class RemoteEngineListenerTest {
         listener.status("Handshaking");
         listener.status("Trying protocol: test-protocol");
         listener.status("Protocol test-protocol failed to establish channel", new Exception("Test Exception"));
-        Assert.assertEquals(2, exporter.getFinishedSpanItems().size()); // ChannelInitializationSpan and JNLPInitializationSpan
+        Assert.assertEquals(2, spanExporter.getFinishedSpanItems().size()); // ChannelInitializationSpan and JNLPInitializationSpan
         Assert.assertNotNull(ChannelInitializationSpan.current());
     }
 
@@ -173,7 +181,7 @@ public class RemoteEngineListenerTest {
         listener.status("Protocol test-protocol-1 failed to establish channel", new Exception("Test Exception"));
         listener.status("Trying protocol: test-protocol-2");
         listener.status("Protocol test-protocol-2 failed to establish channel", new Exception("Test Exception"));
-        Assert.assertEquals(3, exporter.getFinishedSpanItems().size()); // ChannelInitializationSpan and JNLPInitializationSpan x 2
+        Assert.assertEquals(3, spanExporter.getFinishedSpanItems().size()); // ChannelInitializationSpan and JNLPInitializationSpan x 2
         Assert.assertNotNull(ChannelInitializationSpan.current());
     }
 
@@ -195,7 +203,7 @@ public class RemoteEngineListenerTest {
         listener.error(new Exception("The server rejected the connection: None of the protocols were accepted"));
 
         // ChannelInitializationSpan, JNLPInitializationSpan x 2 and ChannelInitializationSpan
-        Assert.assertEquals(4, exporter.getFinishedSpanItems().size());
+        Assert.assertEquals(4, spanExporter.getFinishedSpanItems().size());
         Assert.assertNull(ChannelInitializationSpan.current());
     }
 
@@ -215,14 +223,14 @@ public class RemoteEngineListenerTest {
         listener.error(new Exception("The server rejected the connection: None of the protocols are enabled"));
 
         // ChannelInitializationSpan, JNLPInitializationSpan x 2 and ChannelInitializationSpan
-        Assert.assertEquals(4, exporter.getFinishedSpanItems().size());
+        Assert.assertEquals(4, spanExporter.getFinishedSpanItems().size());
         Assert.assertNull(ChannelInitializationSpan.current());
     }
 
     @Test
     public void testConnected() throws Exception {
         RemoteEngineListener listener = new RemoteEngineListener();
-        Assert.assertEquals(0, exporter.getFinishedSpanItems().size());
+        Assert.assertEquals(0, spanExporter.getFinishedSpanItems().size());
         listener.status("Locating server among [localhost]");
         listener.status(String.format("Agent discovery successful%n"
                         + "  Agent address: %s%n"
@@ -230,15 +238,16 @@ public class RemoteEngineListenerTest {
                         + "  Identity:      %s%n",
                 "localhost", 1234, "01:23:45:67:89:ab:cd:ef:01:23:45:67:89:ab:cd:ef"
         ));
-        Assert.assertEquals(1, exporter.getFinishedSpanItems().size()); // ResolveJnlpEndpointSpan
+        Assert.assertEquals(1, spanExporter.getFinishedSpanItems().size()); // ResolveJnlpEndpointSpan
         listener.status("Connected");
-        Assert.assertEquals(2, exporter.getFinishedSpanItems().size()); // ChannelInitializationSpan and ResolveJnlpEndpointSpan
+        Assert.assertEquals(2, spanExporter.getFinishedSpanItems().size()); // ChannelInitializationSpan and ResolveJnlpEndpointSpan
     }
 
     @After
     public void tearDown() throws Exception {
         OpenTelemetryProxy.clean();
-        exporter.reset();
+        spanExporter.reset();
+        metricExporter.reset();
         new RootListener().onTerminateMonitoringEngine();
     }
 }

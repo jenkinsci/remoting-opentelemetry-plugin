@@ -11,11 +11,12 @@ public class RemotingResourceProvider {
     /**
      * @return configured {@link Resource}
      */
-    public static Resource create() {
+    public static Resource create(EngineConfiguration config) {
         // TODO: more attributes,
-        // TODO: enable to configure them
         return Resource.create(Attributes.of(
-                ResourceAttributes.SERVICE_NAME, "Jenkins Agent"
+                ResourceAttributes.SERVICE_NAMESPACE, "jenkins",
+                ResourceAttributes.SERVICE_NAME, "jenkins-agent",
+                ResourceAttributes.SERVICE_INSTANCE_ID, config.getNodeName()
         ));
     }
 }

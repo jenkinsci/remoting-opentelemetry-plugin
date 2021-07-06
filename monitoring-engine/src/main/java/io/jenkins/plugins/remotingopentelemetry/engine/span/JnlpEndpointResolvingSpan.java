@@ -1,11 +1,13 @@
 package io.jenkins.plugins.remotingopentelemetry.engine.span;
 
 import io.jenkins.plugins.remotingopentelemetry.engine.OpenTelemetryProxy;
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
 /**
  * Span to resolve the JNLP endpoint
