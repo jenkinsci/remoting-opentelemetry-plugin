@@ -1,8 +1,8 @@
 package io.jenkins.plugins.remotingopentelemetry.engine.metric;
 
-import io.jenkins.plugins.remotingopentelemetry.engine.OpenTelemetryProxy;
 import io.jenkins.plugins.remotingopentelemetry.engine.semconv.OpenTelemetryMetricsSemanticConventions;
 import io.opentelemetry.api.metrics.Meter;
+import io.opentelemetry.api.metrics.MeterProvider;
 import io.opentelemetry.api.metrics.common.Labels;
 
 import java.lang.management.GarbageCollectorMXBean;
@@ -11,9 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GarbageCollectorMXBeanMetric {
+    private final Meter meter;
+    public GarbageCollectorMXBeanMetric(MeterProvider meterProvider) {
+        meter = meterProvider.get(GarbageCollectorMXBean.class.getName());
+    }
+
     public void register() {
         List<GarbageCollectorMXBean> garbageCollectors = ManagementFactory.getGarbageCollectorMXBeans();
-        Meter meter = OpenTelemetryProxy.getMeter(GarbageCollectorMXBean.class.getName());
+
         List<Labels> labelSets = new ArrayList<>(garbageCollectors.size());
         for (final GarbageCollectorMXBean gc : garbageCollectors) {
             labelSets.add(Labels.of("gc", gc.getName()));

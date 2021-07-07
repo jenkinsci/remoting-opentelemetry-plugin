@@ -64,6 +64,10 @@ public class OpenTelemetryProxy {
         return sdkMeterProvider.get(instrumentation);
     }
 
+    public static SdkMeterProvider getSdkMeterProvider() {
+        return sdkMeterProvider;
+    }
+
     public static void startIntervalMetricReader() {
         intervalMetricReader.start();
     }
