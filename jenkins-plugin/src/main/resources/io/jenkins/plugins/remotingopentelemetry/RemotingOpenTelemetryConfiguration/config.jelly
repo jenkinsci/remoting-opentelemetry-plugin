@@ -5,5 +5,16 @@
         <f:entry field="endpoint" title="${%Endpoint}">
             <f:textbox/>
         </f:entry>
+        <f:entry title="${%Metrics group to observe}">
+            <f:entry field="systemMetricsGroupEnabled" title="System Metrics Group">
+                <f:checkbox/>
+            </f:entry>
+            <f:entry  field="processMetricsGroupEnabled" title="Process Metrics Group">
+                <f:checkbox/>
+            </f:entry>
+            <f:entry field="jvmMetricsGroupEnabled" title="JVM Metrics Group">
+                <f:checkbox/>
+            </f:entry>
+        </f:entry>
     </f:section>
 </j:jelly>

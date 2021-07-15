@@ -16,11 +16,32 @@ public class EngineConfiguration implements Serializable {
     private final int exporterTimeoutMillis = 30_000;
 
     @Nonnull
-    private String nodeName = "";
+    private final String nodeName;
+
+    @Nonnull
+    private final boolean systemMetricsGroupEnabled;
+
+    @Nonnull
+    private final boolean processMetricsGroupEnabled;
+
+    @Nonnull
+    private final boolean jvmMetricsGroupEnabled;
 
     public EngineConfiguration(String endpoint, String nodeName) {
+        this(endpoint, nodeName, false, false, false);
+    }
+
+    public EngineConfiguration(
+            @Nonnull String endpoint,
+            @Nonnull String nodeName,
+            boolean systemMetricsGroupEnabled,
+            boolean processMetricsGroupEnabled,
+            boolean jvmMetricsGroupEnabled) {
         this.endpoint = endpoint;
         this.nodeName = nodeName;
+        this.systemMetricsGroupEnabled = systemMetricsGroupEnabled;
+        this.processMetricsGroupEnabled = processMetricsGroupEnabled;
+        this.jvmMetricsGroupEnabled = jvmMetricsGroupEnabled;
     }
 
     @Nonnull
@@ -36,5 +57,20 @@ public class EngineConfiguration implements Serializable {
     @Nonnull
     public String getNodeName() {
         return nodeName;
+    }
+
+    @Nonnull
+    public boolean isSystemMetricsGroupEnabled() {
+        return systemMetricsGroupEnabled;
+    }
+
+    @Nonnull
+    public boolean isProcessMetricsGroupEnabled() {
+        return processMetricsGroupEnabled;
+    }
+
+    @Nonnull
+    public boolean isJvmMetricsGroupEnabled() {
+        return jvmMetricsGroupEnabled;
     }
 }

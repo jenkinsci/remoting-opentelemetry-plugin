@@ -32,6 +32,10 @@ public class RemotingOpenTelemetryConfiguration extends GlobalConfiguration {
     }
 
     private String endpoint = "";
+    // TODO: Add hint page for metrics groups
+    private boolean systemMetricsGroupEnabled = false;
+    private boolean processMetricsGroupEnabled = false;
+    private boolean jvmMetricsGroupEnabled = false;
 
     public RemotingOpenTelemetryConfiguration() {
         load();
@@ -55,8 +59,50 @@ public class RemotingOpenTelemetryConfiguration extends GlobalConfiguration {
         applyConfiguration();
     }
 
+    public boolean isSystemMetricsGroupEnabled() {
+        return systemMetricsGroupEnabled;
+    }
+
+    @DataBoundSetter
+    public void setSystemMetricsGroupEnabled(boolean systemMetricsGroupEnabled) {
+        if (this.systemMetricsGroupEnabled == systemMetricsGroupEnabled) return;
+        this.systemMetricsGroupEnabled = systemMetricsGroupEnabled;
+        save();
+        applyConfiguration();
+    }
+
+    public boolean isProcessMetricsGroupEnabled() {
+        return processMetricsGroupEnabled;
+    }
+
+    @DataBoundSetter
+    public void setProcessMetricsGroupEnabled(boolean processMetricsGroupEnabled) {
+        if (this.processMetricsGroupEnabled == processMetricsGroupEnabled) return;
+        this.processMetricsGroupEnabled = processMetricsGroupEnabled;
+        save();
+        applyConfiguration();
+    }
+
+    public boolean isJvmMetricsGroupEnabled() {
+        return jvmMetricsGroupEnabled;
+    }
+
+    @DataBoundSetter
+    public void setJvmMetricsGroupEnabled(boolean jvmMetricsGroupEnabled) {
+        if (this.jvmMetricsGroupEnabled == jvmMetricsGroupEnabled) return;
+        this.jvmMetricsGroupEnabled = jvmMetricsGroupEnabled;
+        save();
+        applyConfiguration();
+    }
+
     public EngineConfiguration export(String nodeName) {
-        return new EngineConfiguration(endpoint, nodeName);
+        return new EngineConfiguration(
+                endpoint,
+                nodeName,
+                systemMetricsGroupEnabled,
+                processMetricsGroupEnabled,
+                jvmMetricsGroupEnabled
+        );
     }
 
     private void applyConfiguration() {

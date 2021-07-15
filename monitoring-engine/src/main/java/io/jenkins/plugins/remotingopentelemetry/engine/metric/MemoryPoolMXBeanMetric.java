@@ -3,6 +3,7 @@ package io.jenkins.plugins.remotingopentelemetry.engine.metric;
 import io.jenkins.plugins.remotingopentelemetry.engine.OpenTelemetryProxy;
 import io.jenkins.plugins.remotingopentelemetry.engine.semconv.OpenTelemetryMetricsSemanticConventions;
 import io.opentelemetry.api.metrics.Meter;
+import io.opentelemetry.api.metrics.MeterProvider;
 import io.opentelemetry.api.metrics.common.Labels;
 
 import java.lang.management.ManagementFactory;
@@ -12,9 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MemoryPoolMXBeanMetric {
+    private final Meter meter;
+    public MemoryPoolMXBeanMetric(MeterProvider meterProvider) {
+        meter = meterProvider.get(MemoryPoolMXBean.class.getName());
+    }
+
     public void register() {
         List<MemoryPoolMXBean> poolBeans = ManagementFactory.getMemoryPoolMXBeans();
-        Meter meter = OpenTelemetryProxy.getMeter(MemoryPoolMXBean.class.getName());
 
         List<Labels> usedLabelSets = new ArrayList<>(poolBeans.size());
         List<Labels> committedLabelSets = new ArrayList<>(poolBeans.size());

@@ -5,6 +5,7 @@ import io.jenkins.plugins.remotingopentelemetry.engine.metric.GarbageCollectorMX
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.MemoryMXBeanMetric;
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.MemoryPoolMXBeanMetric;
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.OperatingSystemMXBeanMetric;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SpanProcessor;
@@ -80,6 +81,7 @@ public final class MonitoringEngine extends Thread {
      */
     static private boolean isMonitoringEngine(Thread thread){
         // Checked by the canonical name in case the different classloaders are used.
+        if (thread == null) return false;
         return Objects.equals(
                 thread.getClass().getCanonicalName(),
                 MonitoringEngine.class.getCanonicalName()
@@ -92,12 +94,16 @@ public final class MonitoringEngine extends Thread {
     @Nonnull
     private final RootListener rootListener = new RootListener();
 
+    @Nonnull
+    private final EngineConfiguration config;
+
     /**
      * Disable the instantiation outside this class.
      */
     private MonitoringEngine (EngineConfiguration config) {
         setDaemon(true);
         setName(THREAD_NAME);
+        this.config = config;
 
         SpanExporter spanExporter = RemotingSpanExporterProvider.create(config);
         MetricExporter metricExporter = RemotingMetricExporterProvider.create(config);
@@ -114,10 +120,20 @@ public final class MonitoringEngine extends Thread {
 
     @Override
     public void run() {
-        new OperatingSystemMXBeanMetric().register();
-        new MemoryMXBeanMetric().register();
-        new MemoryPoolMXBeanMetric().register();
-        new GarbageCollectorMXBeanMetric().register();
+        SdkMeterProvider sdkMeterProvider = OpenTelemetryProxy.getSdkMeterProvider();
+
+        new OperatingSystemMXBeanMetric(
+                sdkMeterProvider,
+                config.isSystemMetricsGroupEnabled(),
+                config.isProcessMetricsGroupEnabled()
+        ).register();
+
+        if (config.isJvmMetricsGroupEnabled()) {
+            new MemoryMXBeanMetric(sdkMeterProvider).register();
+            new MemoryPoolMXBeanMetric(sdkMeterProvider).register();
+            new GarbageCollectorMXBeanMetric(sdkMeterProvider).register();
+        }
+
         OpenTelemetryProxy.startIntervalMetricReader();
 
         Exception exception = null;

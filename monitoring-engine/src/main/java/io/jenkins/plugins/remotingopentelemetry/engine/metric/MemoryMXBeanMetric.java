@@ -3,6 +3,7 @@ package io.jenkins.plugins.remotingopentelemetry.engine.metric;
 import io.jenkins.plugins.remotingopentelemetry.engine.OpenTelemetryProxy;
 import io.jenkins.plugins.remotingopentelemetry.engine.semconv.OpenTelemetryMetricsSemanticConventions;
 import io.opentelemetry.api.metrics.Meter;
+import io.opentelemetry.api.metrics.MeterProvider;
 import io.opentelemetry.api.metrics.common.Labels;
 
 import java.lang.management.ManagementFactory;
@@ -10,9 +11,13 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 
 public class MemoryMXBeanMetric {
+    private final Meter meter;
+    public MemoryMXBeanMetric(MeterProvider meterProvider) {
+        meter = meterProvider.get(MemoryMXBean.class.getName());
+    }
+
     public void register() {
         final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-        final Meter meter = OpenTelemetryProxy.getMeter(MemoryMXBean.class.getName());
 
         meter.longUpDownSumObserverBuilder(OpenTelemetryMetricsSemanticConventions.RUNTIME_JVM_MEMORY_AREA)
                 .setDescription("Bytes of a given JVM memory area.")
