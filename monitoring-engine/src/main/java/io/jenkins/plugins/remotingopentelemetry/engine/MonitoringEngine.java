@@ -1,6 +1,5 @@
 package io.jenkins.plugins.remotingopentelemetry.engine;
 
-import io.jenkins.plugins.remotingopentelemetry.engine.listener.RootListener;
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.GarbageCollectorMXBeanMetric;
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.MemoryMXBeanMetric;
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.MemoryPoolMXBeanMetric;
@@ -15,6 +14,8 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -22,6 +23,7 @@ import java.util.stream.Stream;
  * One agent cannot run more than one MonitoringEngine thread.
  */
 public final class MonitoringEngine extends Thread {
+    Logger LOGGER = Logger.getLogger(MonitoringEngine.class.getName());
     /**
      * Launches the Monitoring engine.
      * The current engine will be killed if exists.
@@ -92,9 +94,6 @@ public final class MonitoringEngine extends Thread {
     private final String THREAD_NAME = "Monitoring Engine";
 
     @Nonnull
-    private final RootListener rootListener = new RootListener();
-
-    @Nonnull
     private final EngineConfiguration config;
 
     /**
@@ -103,6 +102,7 @@ public final class MonitoringEngine extends Thread {
     private MonitoringEngine (EngineConfiguration config) {
         setDaemon(true);
         setName(THREAD_NAME);
+        setUncaughtExceptionHandler((t,e) -> LOGGER.log(Level.WARNING, e, () -> "Uncaught exception in thread " + t.getName()));
         this.config = config;
 
         SpanExporter spanExporter = RemotingSpanExporterProvider.create(config);
@@ -110,12 +110,6 @@ public final class MonitoringEngine extends Thread {
         Resource resource = RemotingResourceProvider.create(config);
         SpanProcessor spanProcessor = BatchSpanProcessor.builder(spanExporter).build();
         OpenTelemetryProxy.build(spanProcessor, metricExporter, resource, config);
-    }
-
-    @Override
-    public void start() {
-        rootListener.preStartMonitoringEngine();
-        super.start();
     }
 
     @Override
@@ -140,9 +134,8 @@ public final class MonitoringEngine extends Thread {
         try {
             block();
         } catch (InterruptedException e) {
-            exception = e;
+            // terminate engine
         } finally {
-            rootListener.onTerminateMonitoringEngine(exception);
             OpenTelemetryProxy.clean();
         }
     }

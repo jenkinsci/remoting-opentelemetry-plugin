@@ -1,16 +1,100 @@
 version: "3"
 services:
+    jenkins_docker:
+        image: docker:dind
+        volumes:
+            - ./jenkins-data:/var/jenkins_home
+        expose:
+            - 2376
+        networks:
+            - jenkins
+        privileged: true
+        command: --storage-driver=overlay2
+
+    jenkins_blueocean:
+        build: jenkins
+        volumes:
+            - ./jenkins-data:/var/jenkins_home
+            - ./jenkins/jenkins.yaml:/var/jenkins.yaml
+        environment:
+            - DOCKER_HOST=tcp://jenkins_docker:2376
+            - CASC_JENKINS_CONFIG=/var/jenkins.yaml
+            - SSH_KEY_PASSWORD=$SSH_PASSPHRASE
+        ports:
+            - 8080:8080
+            - 50000:50000
+        depends_on:
+            - jenkins_docker
+        secrets:
+            - ssh_privkey
+        healthcheck:
+            test: curl --fail localhost:8080/login
+            interval: 1s
+            retries: 300
+        networks:
+            jenkins:
+                aliases:
+                    - blueocean.jen
+
+    jenkins_jnlp_agent:
+        build: jnlp-agent
+        volumes:
+            - $REMOTING_JAR:/opt/jenkins/agent.jar
+            - $MONITORING_ENGINE_JAR:/opt/jenkins/monitoring-engine.jar
+        environment:
+            - JENKINS_ROOT=http://localhost:8080
+            - NODE_NAME=jnlp-node
+            - WORK_DIR=/tmp/jenkins
+            - OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:55680
+        network_mode: host
+        restart: always
+        depends_on:
+            jenkins_blueocean:
+                condition: service_healthy
+
+    jenkins_websocket_agent:
+        build: jnlp-agent
+        volumes:
+            - $REMOTING_JAR:/opt/jenkins/agent.jar
+            - $MONITORING_ENGINE_JAR:/opt/jenkins/monitoring-engine.jar
+        environment:
+            - JENKINS_ROOT=http://localhost:8080
+            - NODE_NAME=websocket-node
+            - WORK_DIR=/tmp/jenkins
+            - OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:55680
+        network_mode: host
+        restart: always
+        depends_on:
+            jenkins_blueocean:
+                condition: service_healthy
+
+    jenkins_ssh_agent:
+        image: jenkins/ssh-agent
+        volumes:
+            - $MONITORING_ENGINE_JAR:/home/jenkins/monitoring-engine.jar
+        environment:
+            - JENKINS_SLAVE_SSH_PUBKEY=$SSH_PUBKEY
+            - NODE_NAME=ssh-node
+            - OTEL_EXPORTER_OTLP_ENDPOINT=http://collector.otel:55680
+        restart: always
+        networks:
+            - jenkins
+
     jaeger:
         image: jaegertracing/all-in-one:1.22
         expose:
             - 14250
         ports:
             - 16686:16686
+        networks:
+            - jenkins
 
     zipkin:
         image: openzipkin/zipkin
         ports:
             - 9411:9411
+        networks:
+            - jenkins
 
     prometheus:
         image: prom/prometheus
@@ -18,14 +102,28 @@ services:
             - 9090:9090
         volumes:
             - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+        networks:
+            - jenkins
 
     otel_collector:
         image: otel/opentelemetry-collector
-        command: ["--config=/otel-collector-config.yaml"]
+        command: [ "--config=/otel-collector-config.yaml" ]
         expose:
             - 8889
         ports:
             - 55680:55680
         volumes:
             - ./otel-collector/otel-collector-config.yaml:/otel-collector-config.yaml
+        networks:
+            jenkins:
+                aliases:
+                    - collector.otel
+
+networks:
+    jenkins:
+        driver: bridge
+
+secrets:
+    ssh_privkey:
+        file: $SSH_PRIVKEY_PATH
 

@@ -110,5 +110,11 @@
             <artifactId>perfmark-api</artifactId>
             <version>0.23.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.main</groupId>
+            <artifactId>remoting</artifactId>
+            <version>4.11-rc2944.d6820234c35d</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

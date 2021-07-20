@@ -1,0 +1,7 @@
+jenkins-data/*
+!jenkins-data/.gitkeep
+
+.env
+
+ssh-keys/*
+!ssh-keys/.gitkeep

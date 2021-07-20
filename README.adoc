@@ -88,8 +88,43 @@ Report 0% if no swap memory is discovered by the JVM.
 [#getting-started]
 == Getting started
 
-TODO Tell users how to configure your plugin here, include screenshots, pipeline examples and
-configuration-as-code examples.
+=== 1. Build monitoring agent
+
+....
+$ mvn package -pl monitoring-engine -DskipTests
+....
+
+=== 2. Download custom remoting.jar
+
+This plugin requires new feature of remoting.jar and the feature is not merged yet.
+So please download remoting-4.11-rc2944.d6820234c35d.jar from incrementals: https://repo.jenkins-ci.org/ui/native/incrementals/org/jenkins-ci/main/remoting/4.11-rc2944.d6820234c35d/
+
+==== 3. Setup Otel collector, Prometheus, Jaeger etc...
+
+You can use example
+....
+$ cd example
+$ docker-compose up otel_collector jaeger zipkin prometheus
+....
+
+you can also set up jenkins controller
+
+....
+$ docker-compose up jenkins_docker jenkins_blueocean
+....
+
+==== 4. Run agent
+
+....
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:55680
+export NODE_NAME=jnlp-node
+export JENKINS_ROOT=http://localhost:8080
+java \
+-Dhudson.remoting.Engine.engineInstrumentationListenerCanonicalNames=io.jenkins.plugins.remotingopentelemetry.engine.listener.RemoteEngineInstrumentationListener \
+-Dhudson.remoting.Launcher.launcherInstrumentationListenerCanonicalNames=io.jenkins.plugins.remotingopentelemetry.engine.listener.RemoteLauncherInstrumentationListener \
+-jar /path/to/remoting-4.11-rc2944.d6820234c35d.jar -jnlpUrl $JENKINS_ROOT/computer/$NODE_NAME/jenkins-agent.jnlp \
+-cp ./monitoring-engine/target/remoting-opentelemetry-engine.jar
+....
 
 [#contributing]
 == Contributing

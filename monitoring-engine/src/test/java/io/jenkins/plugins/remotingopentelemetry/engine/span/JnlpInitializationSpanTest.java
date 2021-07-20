@@ -8,7 +8,6 @@ import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class JnlpInitializationSpanTest {
@@ -20,16 +19,6 @@ public class JnlpInitializationSpanTest {
         SpanProcessor spanProcessor = SimpleSpanProcessor.create(spanExporter);
         Resource resource = RemotingResourceProvider.create(config);
         OpenTelemetryProxy.build(spanProcessor, metricExporter, resource, config);
-
-        ChannelInitializationSpan channelInitializationSpan = new ChannelInitializationSpan();
-        channelInitializationSpan.start();
-
-        JnlpInitializationSpan jnlpInitializationSpan = new JnlpInitializationSpan();
-        jnlpInitializationSpan.start(channelInitializationSpan);
-
-        jnlpInitializationSpan.setProtocolName("New Protocol");
-
-        Assert.assertEquals("New Protocol", JnlpInitializationSpan.current().getProtocolName());
 
         spanExporter.reset();
         metricExporter.reset();

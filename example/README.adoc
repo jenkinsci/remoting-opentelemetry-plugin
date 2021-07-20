@@ -1,49 +1,74 @@
-== Setup with development environment
+== Demo sample
+
+This demo sets up
+
+* Jenkins controller
+* Jenkins agent
+** JNLP inbound agent
+** WebSocket agent
+** SSH agent
+* Otel collector
+* Prometheus
+* Jaeger
+* Zipkin
 
 === 0. Setup Docker and Docker compose
 
 - https://docs.docker.com/get-docker/
 - https://docs.docker.com/compose/install/
 
-=== 1. Setup OpenTelemetry Collector, Jaeger and Zipkin
+=== 1. Build monitoring engine
+....
+$ mvn package -pl monitoring-engine
+....
+
+And wrote the monitoring engine path to `.env`
 
 ....
-$ git clone https://github.com/jenkinsci/remoting-opentelemetry-plugin.git
 $ cd example
+$ echo "MONITORING_ENGINE_JAR=../monitoring-engine/target/remoting-opentelemetry-engine.jar" >> .env
+....
+
+=== 2. Download custom remoting.jar
+
+This plugin requires new feature of remoting.jar and the feature is not merged yet.
+So please download remoting-4.11-rc2944.d6820234c35d.jar from incrementals: https://repo.jenkins-ci.org/ui/native/incrementals/org/jenkins-ci/main/remoting/4.11-rc2944.d6820234c35d/
+
+And wrote the path of the JAR file to `.env`
+
+....
+$ echo "REMOTING_JAR=/path/to/remoting-4.11-rc2944.d6820234c35d.jar" >> .env
+....
+
+=== 3. Create SSH Public/Private Keys for SSH agent
+
+....
+$ ssh-keygen -f ./ssh-keys/id_ed25519 -t ed25519 -N p@ssword
+....
+
+And wrote the content of the public key, the path of the secret key and the password to `.env`
+
+....
+$ echo "SSH_PUBKEY=\"$(cat ./ssh-keys/id_ed25519.pub)\"" >> .env
+$ echo "SSH_PRIVKEY_PATH=./ssh-keys/id_ed25519" >> .env
+$ echo "SSH_PASSPHRASE=p@ssword" >> .env
+....
+
+=== 4. run
+....
 $ docker-compose up
 ....
 
-=== 2. Setup development Jenkins server
+It takes a few minutes to start.
+
+=== 5. SSH agent
+
+To collect ssh agent data,
 
 ....
-cd jenkins-plugin
-mvn hpi:run
+$ cp /path/to/remoting-4.11-rc2944.d6820234c35d.jar ./jenkins-data/war/WEB-INF/lib/remoting-4.7.jar
+$ docker-compose restart jenkins_blueocean
 ....
-
-==== Configure this plugin
-
-Access: http://localhost:8080/jenkins/configureTools/
-(Global Tool Configuration page)
-
-In the "Remoting OpenTelemetry Plugin" section, set "Endpoint" to `http://localhost:55680`
-
-This value is the OpenTelemetry Collector endpoint used on the *agent* side.
-
-=== 3. Setup Jenkins agent
-
-. Create a new node with Jenkins server UI
-** Use JNLP to connect agent. i.e., Set "Launch Method" to "Launch agent by connecting it to the master"
-** Set "Name" and "Remote root directory" as you like, and we will use the values to launch agents.
-. Run and connect new node
-** Use helper function
-
- ./example/launch_agent.sh -w /path/to/work/dir -n node-name
-
-=== 4. Create Span
-
-As we have only Channel Keep-Alive span now, we need to disconnect agents to produce spans.
-
-Try disconnecting agents from the agent detail page.
 
 === 5. Open Jaeger / Zipkin UI / Prometheus
 

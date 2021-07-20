@@ -1,0 +1,67 @@
+jenkins:
+    nodes:
+        -   permanent:
+                labelString: "linux docker test"
+                mode: NORMAL
+                name: "jnlp-node"
+                remoteFS: "/home/user"
+                launcher:
+                    jnlp:
+                        workDirSettings:
+                            disabled: true
+                            failIfWorkDirIsMissing: false
+                            internalDir: "remoting"
+                            workDirPath: "/tmp/jenkins"
+
+        -   permanent:
+                labelString: "linux docker test"
+                mode: NORMAL
+                name: "websocket-node"
+                remoteFS: "/home/user"
+                launcher:
+                    jnlp:
+                        workDirSettings:
+                            disabled: true
+                            failIfWorkDirIsMissing: false
+                            internalDir: "remoting"
+                            workDirPath: "/tmp/jenkins"
+                        webSocket: true
+
+        -   permanent:
+                labelString: "linux docker test"
+                mode: NORMAL
+                name: "ssh-node"
+                numExecutors: 4
+                remoteFS: "/home/jenkins"
+                launcher:
+                    SSHLauncher:
+                        host: jenkins_ssh_agent
+                        port: 22
+                        javaPath: /usr/local/openjdk-8/bin/java
+                        jvmOptions: "\
+                            -Dhudson.remoting.Engine.engineInstrumentationListenerCanonicalNames=\
+                            io.jenkins.plugins.remotingopentelemetry.engine.listener.RemoteEngineInstrumentationListener \
+                            -Dhudson.remoting.Launcher.launcherInstrumentationListenerCanonicalNames=\
+                            io.jenkins.plugins.remotingopentelemetry.engine.listener.RemoteLauncherInstrumentationListener"
+                        suffixStartSlaveCmd: "/ -cp /home/jenkins/monitoring-engine.jar"
+                        credentialsId: ssh_with_passphrase_provided
+                        launchTimeoutSeconds: 60
+                        maxNumRetries: 3
+                        retryWaitTime: 30
+                        sshHostKeyVerificationStrategy:
+                            manuallyTrustedKeyVerificationStrategy:
+                                requireInitialManualTrust: false
+
+credentials:
+    system:
+        domainCredentials:
+            -   credentials:
+                    -   basicSSHUserPrivateKey:
+                            scope: SYSTEM
+                            id: ssh_with_passphrase_provided
+                            username: jenkins
+                            passphrase: ${SSH_KEY_PASSWORD}
+                            description: "SSH passphrase with private key file. Private key provided"
+                            privateKeySource:
+                                directEntry:
+                                    privateKey: "${readFile:/run/secrets/ssh_privkey}"

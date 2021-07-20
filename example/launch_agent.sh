@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo_and_exec()
+{
+  echo $@
+  eval $@
+}
+
 help()
 {
   echo "Usage: $0 -w workdir -n node-name"
@@ -13,7 +19,6 @@ do
   case "$opt" in
     w ) WORK_DIR="$OPTARG" ;;
     n ) NODE_NAME="$OPTARG" ;;
-    ? ) help ;;
   esac
 done
 
@@ -22,7 +27,12 @@ then
   help
 fi
 
+shift
+shift
+shift
+shift
+
 curl $JENKINS_ROOT/jnlpJars/agent.jar -o agent.jar
-java \
+echo_and_exec java \
   -Djava.awt.headless=true -jar agent.jar -jnlpUrl $JENKINS_ROOT/computer/$NODE_NAME/slave-agent.jnlp \
-  -workDir $WORK_DIR
+  -workDir $WORK_DIR $*
