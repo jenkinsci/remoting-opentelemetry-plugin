@@ -16,7 +16,7 @@ public class RemotingResourceProvider {
         return Resource.create(Attributes.of(
                 ResourceAttributes.SERVICE_NAMESPACE, "jenkins",
                 ResourceAttributes.SERVICE_NAME, "jenkins-agent",
-                ResourceAttributes.SERVICE_INSTANCE_ID, config.getNodeName()
+                ResourceAttributes.SERVICE_INSTANCE_ID, config.getServiceInstanceId()
         ));
     }
 }

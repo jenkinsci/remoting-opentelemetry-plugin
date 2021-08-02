@@ -4,16 +4,27 @@ receivers:
             grpc:
 
 exporters:
-    jaeger:
-        endpoint: jaeger:14250
-        insecure: true
-    zipkin:
-        endpoint: http://zipkin:9411/api/v2/spans
-        insecure: true
     prometheus:
         endpoint: 0.0.0.0:8889
         resource_to_telemetry_conversion:
             enabled: true
+    loki:
+        endpoint: "http://loki:3100/loki/api/v1/push"
+        labels:
+            resource:
+                service.name: "service_name"
+                service.namespace: "service_namespace"
+                service.instance.id: "service_instance_id"
+            attributes:
+                log.level: "level"
+                thread.id: "thread_id"
+                code.namespace: "code_namespace"
+                code.function: "code_function"
+                exception.type: "exception_type"
+                exception.message: "exception_message"
+                exception.stacktrace: "exception_stacktrace"
+    logging:
+        logLevel: info
 
 processors:
     batch:
@@ -34,11 +45,8 @@ service:
             exporters:
                 - prometheus
 
-        traces:
+        logs:
             receivers:
                 - otlp
-            processors:
-                - batch
             exporters:
-                - jaeger
-                - zipkin
+                - loki

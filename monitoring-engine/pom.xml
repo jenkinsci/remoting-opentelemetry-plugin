@@ -22,7 +22,11 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-
+                    <archive>
+                        <manifestEntries>
+                            <Premain-Class>io.jenkins.plugins.remotingopentelemetry.engine.PreMain</Premain-Class>
+                        </manifestEntries>
+                    </archive>
                     <!-- Use JAR with dependencies as main project artifact -->
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
@@ -47,6 +51,16 @@
         <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk-extension-logging</artifactId>
+            <version>${opentelemetry.version}-alpha</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-proto</artifactId>
+            <version>${opentelemetry.version}-alpha</version>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry</groupId>
@@ -91,11 +105,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>20.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.15.7</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
