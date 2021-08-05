@@ -16,7 +16,7 @@ public class EngineConfiguration implements Serializable {
     private final int exporterTimeoutMillis = 30_000;
 
     @Nonnull
-    private final String nodeName;
+    private final String serviceInstanceId;
 
     @Nonnull
     private final boolean systemMetricsGroupEnabled;
@@ -33,12 +33,12 @@ public class EngineConfiguration implements Serializable {
 
     public EngineConfiguration(
             @Nonnull String endpoint,
-            @Nonnull String nodeName,
+            @Nonnull String serviceInstanceId,
             boolean systemMetricsGroupEnabled,
             boolean processMetricsGroupEnabled,
             boolean jvmMetricsGroupEnabled) {
         this.endpoint = endpoint;
-        this.nodeName = nodeName;
+        this.serviceInstanceId = serviceInstanceId;
         this.systemMetricsGroupEnabled = systemMetricsGroupEnabled;
         this.processMetricsGroupEnabled = processMetricsGroupEnabled;
         this.jvmMetricsGroupEnabled = jvmMetricsGroupEnabled;
@@ -55,8 +55,8 @@ public class EngineConfiguration implements Serializable {
     }
 
     @Nonnull
-    public String getNodeName() {
-        return nodeName;
+    public String getServiceInstanceId() {
+        return serviceInstanceId;
     }
 
     @Nonnull

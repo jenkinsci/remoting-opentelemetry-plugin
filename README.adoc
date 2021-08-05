@@ -1,28 +1,149 @@
 [[remoting-opentelemetry-plugin]]
 = Jenkins Remoting monitoring with OpenTelemetry Plugin
 :toc: macro
+:toclevels: 1
 :toc-title:
 
 image::https://img.shields.io/badge/chat-on%20slack-yellow?logo=slack[link="https://cdeliveryfdn.slack.com/archives/C023E83AMAL"]
 
+toc::[]
+
 [#introduction]
 == Introduction
 
-Collect the monitoring data of Jenkins Remoting through OpenTelemetry.
+=== Goal
 
-toc::[]
+image:./doc/image/goal.png[Goal of Remoting Monitoring with OpenTelemetry, align="center", width=700]
 
-== Features
+*The goal of this project:*
+
+* collect telemetry data(metrics, traces, logs) of remoting module with
+OpenTelemetry.
+* send the telemetry data to OpenTelemetry Protocol endpoint
+
+Which OpenTelemetry endpoint to use and how to visualize the data are up to
+users.
+Collect telemetry data of Jenkins Remoting using OpenTelemetry.
+
+=== OpenTelemetry
+
+image:https://cncf-branding.netlify.app/img/projects/opentelemetry/horizontal/color/opentelemetry-horizontal-color.png[OpenTelemetry Logo, link=https://opentelemetry.io/, width=300]
+
+*An observability framework for cloud-native software*
+
+____
+OpenTelemetry is a collection of tools, APIs, and SDKs.
+You can use it to instrument, generate, collect, and export telemetry
+data(metrics, logs, and traces) for analysis in order to understand your
+software's performance and behavior.
+____
+
+[#getting-started]
+== Getting started
+
+==== 1. Setup OpenTelemetry protocol endpoint and monitoring backends
+
+We prepare docker-compose.yaml to set up them.
+
+[source,console]
+....
+$ cd example
+$ docker-compose up
+....
+
+This will set up
+
+* OpenTelemetry Collector
+* Loki for Log aggregation
+* Prometheus for metric backend
+* Grafana for log and metric visualization
+** datasource is already configured
+
+==== 2. Build monitoring-engine sub module
+
+[source,console]
+....
+$ mvn package -DskipTests -pl monitoring-engine
+....
+
+This wil generate `remoting-opentelemetry-engine.jar` at `monitoring-engine/target/`
+
+We will use this JAR as java agent when launching agent.
+
+==== 3. Create `logging.properties` file.
+
+Use `io.jenkins.plugins.remotingopentelemetry.engine.log.OpenTelemetryLogHandler` for handler.
+
+.logging.properties
+[source,properties]
+....
+handlers=io.jenkins.plugins.remotingopentelemetry.engine.log.OpenTelemetryLogHandler,java.util.logging.ConsoleHandler
+.level=INFO
+....
+
+==== 4. Launch Jenkins agent
+
+Setup jenkins controller and launch agent with `-javaagent` and `-loggingConfig` option.
+
+[source,console]
+....
+$ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:55680
+$ java \
+-javaagent ./path/to/remoting-opentelemetry-engine.jar \
+-jar agent.jar \
+-jnlpUrl <jnlp url> \
+-loggingConfig logging.properties
+....
+
+==== 5. Explore logs and metrics
+
+Open Grafana: http://localhost:3000/explore
+
+== Configuration options
+
+We can configure the monitoring engine via environment variables.
+
+|===
+|environment variable|require|example / description
+
+.2+|OTEL_EXPORTER_OTLP_ENDPOINT .2+|true|`http://localhost:55680`
+|Target to which the exporter is going to send spans, metrics or logs.
+.2+|SERVICE_INSTANCE_ID .2+|false|90caeb02-a5ba-4827-bb3e-63babecfa893
+|The string ID of the service instance. If not provided, UUID will be generated and used every time the agent launches.
+|===
+
+== Specification
 
 === Resource
 
+Following resource attributes will be provided.
+
 |===
 |key|value|description
+
 |service_namespace|"jenkins"|This value will be configurable in the future.
 |service_namespace|"jenkins-agent"|This value will be configurable in the future.
 |service_instance_id|Node name|
 |===
 
+=== Logs
+
+Only logs emitted via `java.util.logging` will be collected for now.
+
+Following attributes will be provided.
+
+|===
+|key|example|description
+
+|log.level|INFO|Log level name. See `java.util.logging.Level.getName`.
+|code.namespace|hudson.remoting.jnlp.Main$CuiListener|The name of the class that (allegedly) issued the logging request.
+|code.function|status|The name of the method that (allegedly) issued the logging request.
+|exception.type|java.io.IOException|The class name of the throwable associated with the log record.
+|exception.message|Broken pipe|The detail message string of the throwable associated with the log record.
+|exception.stacktrace|java.io.IOException: Broken pipe at hudson.remoting.Engine.innerRun(Engine.java:784) at hudson.remoting.Engine.run(Engine.java:575)
+|The stacktrace the throwable associated with the log record.
+
+|===
 
 === Spans
 
@@ -84,12 +205,6 @@ Report 0% if no swap memory is discovered by the JVM.
 |see link:https://docs.oracle.com/en/java/javase/11/docs/api/jdk.management/com/sun/management/GarbageCollectorMXBean.html[GarbageCollectorMXBean]
 
 |===
-
-[#getting-started]
-== Getting started
-
-TODO Tell users how to configure your plugin here, include screenshots, pipeline examples and
-configuration-as-code examples.
 
 [#contributing]
 == Contributing
