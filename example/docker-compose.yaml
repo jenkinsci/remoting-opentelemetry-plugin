@@ -16,8 +16,6 @@ services:
             - 8889
         ports:
             - 55680:55680
-        environment:
-            - NEW_RELIC_LICENSE_KEY=$NEW_RELIC_LICENSE_KEY
         volumes:
             - ./otel-collector/otel-collector-config.yaml:/otel-collector-config.yaml
         depends_on:
