@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.jenkins.plugins</groupId>
         <artifactId>remoting-opentelemetry-parent</artifactId>
-        <version>0.1-alpha</version>
+        <version>${revision}${changelist}</version>
     </parent>
 
     <artifactId>remoting-opentelemetry</artifactId>
