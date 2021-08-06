@@ -8,6 +8,7 @@ import io.opentelemetry.sdk.logging.data.LogRecord.Severity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Filter;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -55,10 +56,15 @@ public final class OpenTelemetryLogHandler extends Handler {
         Throwable throwable = logRecord.getThrown();
         if (throwable != null) {
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            throwable.printStackTrace(new PrintStream(baos));
             attributesBuilder.put("exception.type", throwable.getClass().getName())
-                    .put("exception.message", throwable.getLocalizedMessage())
-                    .put("exception.stacktrace", baos.toString());
+                    .put("exception.message", throwable.getLocalizedMessage());
+            try {
+                throwable.printStackTrace(new PrintStream(baos, false, "UTF-8"));
+                attributesBuilder
+                        .put("exception.stacktrace", baos.toString("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                assert false : "UTF-8 is a valid charset name.";
+            }
         }
 
         builder.setName(logRecord.getMessage())
@@ -93,7 +99,7 @@ public final class OpenTelemetryLogHandler extends Handler {
     }
 
     private static final class NettyClientHandlerLoggerFilter implements Filter {
-        private final String FILTERING_LOGGER_NAME = "io.grpc.netty.shaded.io.grpc.netty.NettyClientHandler";
+        private static final String FILTERING_LOGGER_NAME = "io.grpc.netty.shaded.io.grpc.netty.NettyClientHandler";
 
         @Override
         public boolean isLoggable(LogRecord record) {
