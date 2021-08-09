@@ -2,6 +2,7 @@ package io.jenkins.plugins.remotingopentelemetry.engine;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.util.regex.Pattern;
 
 /**
  * Immutable configuration object of the Monitoring Engine
@@ -19,29 +20,15 @@ public class EngineConfiguration implements Serializable {
     private final String serviceInstanceId;
 
     @Nonnull
-    private final boolean systemMetricsGroupEnabled;
-
-    @Nonnull
-    private final boolean processMetricsGroupEnabled;
-
-    @Nonnull
-    private final boolean jvmMetricsGroupEnabled;
-
-    public EngineConfiguration(String endpoint, String nodeName) {
-        this(endpoint, nodeName, false, false, false);
-    }
+    private final Pattern metricsFilterPattern;
 
     public EngineConfiguration(
             @Nonnull String endpoint,
             @Nonnull String serviceInstanceId,
-            boolean systemMetricsGroupEnabled,
-            boolean processMetricsGroupEnabled,
-            boolean jvmMetricsGroupEnabled) {
+            @Nonnull Pattern metricPattern) {
         this.endpoint = endpoint;
         this.serviceInstanceId = serviceInstanceId;
-        this.systemMetricsGroupEnabled = systemMetricsGroupEnabled;
-        this.processMetricsGroupEnabled = processMetricsGroupEnabled;
-        this.jvmMetricsGroupEnabled = jvmMetricsGroupEnabled;
+        this.metricsFilterPattern = metricPattern;
     }
 
     @Nonnull
@@ -60,17 +47,7 @@ public class EngineConfiguration implements Serializable {
     }
 
     @Nonnull
-    public boolean isSystemMetricsGroupEnabled() {
-        return systemMetricsGroupEnabled;
-    }
-
-    @Nonnull
-    public boolean isProcessMetricsGroupEnabled() {
-        return processMetricsGroupEnabled;
-    }
-
-    @Nonnull
-    public boolean isJvmMetricsGroupEnabled() {
-        return jvmMetricsGroupEnabled;
+    public Pattern getMetricsFilterPattern() {
+        return metricsFilterPattern;
     }
 }
