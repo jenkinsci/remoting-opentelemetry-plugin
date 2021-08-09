@@ -44,6 +44,9 @@ ____
 ==== 1. Setup OpenTelemetry protocol endpoint and monitoring backends
 
 We prepare docker-compose.yaml to set up them.
+Use it if you just want to try.
+
+Clone repository from https://github.com/jenkinsci/remoting-opentelemetry-plugin.
 
 [source,console]
 ....
@@ -59,14 +62,9 @@ This will set up
 * Grafana for log and metric visualization
 ** datasource is already configured
 
-==== 2. Build monitoring-engine sub module
+==== 2. Download monitoring-engine
 
-[source,console]
-....
-$ mvn package -DskipTests -pl monitoring-engine
-....
-
-This wil generate `remoting-opentelemetry-engine.jar` at `monitoring-engine/target/`
+Download `remoting-opentelemetry-engine-<tag>.jar` from link:https://github.com/jenkinsci/remoting-opentelemetry-plugin/releases[Release Page].
 
 We will use this JAR as java agent when launching agent.
 
@@ -89,7 +87,7 @@ Setup jenkins controller and launch agent with `-javaagent` and `-loggingConfig`
 ....
 $ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:55680
 $ java \
--javaagent ./path/to/remoting-opentelemetry-engine.jar \
+-javaagent remoting-opentelemetry-engine.jar \
 -jar agent.jar \
 -jnlpUrl <jnlp url> \
 -loggingConfig logging.properties
@@ -110,6 +108,9 @@ We can configure the monitoring engine via environment variables.
 |Target to which the exporter is going to send spans, metrics or logs.
 .2+|SERVICE_INSTANCE_ID .2+|false|90caeb02-a5ba-4827-bb3e-63babecfa893
 |The string ID of the service instance. If not provided, UUID will be generated and used every time the agent launches.
+.2+|REMOTING_OTEL_METRIC_FILTER .2+|false|"system\.cpu\..*"
+|Set regex filter for metrics. The metrics whose name match the regex will be collected.
+The default value is ".*" and collect all the metrics.
 |===
 
 == Specification

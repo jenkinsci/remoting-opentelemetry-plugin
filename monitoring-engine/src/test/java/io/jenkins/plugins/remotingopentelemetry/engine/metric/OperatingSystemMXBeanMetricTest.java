@@ -10,10 +10,12 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class OperatingSystemMXBeanMetricTest {
     @Test
     public void testUseSystemMetricArgument() throws Exception {
+        Pattern filter = Pattern.compile("process\\..*");
         InMemoryMetricExporter inMemoryMetricExporter = InMemoryMetricExporter.create();
         SdkMeterProvider sdkMeterProvider = SdkMeterProvider.builder().build();
         IntervalMetricReader intervalMetricReader = IntervalMetricReader.builder()
@@ -22,7 +24,7 @@ public class OperatingSystemMXBeanMetricTest {
                 .setExportIntervalMillis(200)
                 .build();
 
-        new OperatingSystemMXBeanMetric(sdkMeterProvider, false, true).register();
+        new OperatingSystemMXBeanMetric(sdkMeterProvider, filter).register();
 
         intervalMetricReader.start();
 
@@ -48,6 +50,7 @@ public class OperatingSystemMXBeanMetricTest {
 
     @Test
     public void testUseProcessMetricArgument() throws Exception {
+        Pattern filter = Pattern.compile("system\\..*");
         InMemoryMetricExporter inMemoryMetricExporter = InMemoryMetricExporter.create();
         SdkMeterProvider sdkMeterProvider = SdkMeterProvider.builder().build();
         IntervalMetricReader intervalMetricReader = IntervalMetricReader.builder()
@@ -56,7 +59,7 @@ public class OperatingSystemMXBeanMetricTest {
                 .setExportIntervalMillis(200)
                 .build();
 
-        new OperatingSystemMXBeanMetric(sdkMeterProvider, true, false).register();
+        new OperatingSystemMXBeanMetric(sdkMeterProvider, filter).register();
 
         intervalMetricReader.start();
 

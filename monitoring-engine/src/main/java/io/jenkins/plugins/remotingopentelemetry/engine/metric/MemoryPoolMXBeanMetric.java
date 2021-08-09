@@ -1,6 +1,5 @@
 package io.jenkins.plugins.remotingopentelemetry.engine.metric;
 
-import io.jenkins.plugins.remotingopentelemetry.engine.OpenTelemetryProxy;
 import io.jenkins.plugins.remotingopentelemetry.engine.semconv.OpenTelemetryMetricsSemanticConventions;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.api.metrics.MeterProvider;
@@ -11,11 +10,14 @@ import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class MemoryPoolMXBeanMetric {
     private final Meter meter;
-    public MemoryPoolMXBeanMetric(MeterProvider meterProvider) {
+    private final Pattern filterPattern;
+    public MemoryPoolMXBeanMetric(MeterProvider meterProvider, Pattern filterPattern) {
         meter = meterProvider.get(MemoryPoolMXBean.class.getName());
+        this.filterPattern = filterPattern;
     }
 
     public void register() {
@@ -30,21 +32,23 @@ public class MemoryPoolMXBeanMetric {
             maxLabelSets.add(Labels.of("type", "max", "pool", pool.getName()));
         }
 
-        meter.longUpDownSumObserverBuilder(OpenTelemetryMetricsSemanticConventions.RUNTIME_JVM_MEMORY_POOL)
-                .setDescription("Bytes of a given JVM memory pool.")
-                .setUnit("bytes")
-                .setUpdater(result -> {
-                    for (int i = 0; i< poolBeans.size(); i++) {
-                        MemoryUsage poolUsage = poolBeans.get(i).getUsage();
-                        if (poolUsage != null) {
-                            result.observe(poolUsage.getUsed(), usedLabelSets.get(i));
-                            result.observe(poolUsage.getCommitted(), committedLabelSets.get(i));
-                            if (poolUsage.getMax() >= 0) {
-                                result.observe(poolUsage.getMax(), maxLabelSets.get(i));
+        if (filterPattern.matcher(OpenTelemetryMetricsSemanticConventions.RUNTIME_JVM_MEMORY_POOL).matches()) {
+            meter.longUpDownSumObserverBuilder(OpenTelemetryMetricsSemanticConventions.RUNTIME_JVM_MEMORY_POOL)
+                    .setDescription("Bytes of a given JVM memory pool.")
+                    .setUnit("bytes")
+                    .setUpdater(result -> {
+                        for (int i = 0; i< poolBeans.size(); i++) {
+                            MemoryUsage poolUsage = poolBeans.get(i).getUsage();
+                            if (poolUsage != null) {
+                                result.observe(poolUsage.getUsed(), usedLabelSets.get(i));
+                                result.observe(poolUsage.getCommitted(), committedLabelSets.get(i));
+                                if (poolUsage.getMax() >= 0) {
+                                    result.observe(poolUsage.getMax(), maxLabelSets.get(i));
+                                }
                             }
                         }
-                    }
-                })
-                .build();
+                    })
+                    .build();
+        }
     }
 }

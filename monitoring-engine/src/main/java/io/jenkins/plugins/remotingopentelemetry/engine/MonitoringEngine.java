@@ -11,6 +11,8 @@ import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.resources.Resource;
 
+import java.util.regex.Pattern;
+
 public final class MonitoringEngine {
     EngineConfiguration  config;
 
@@ -36,17 +38,11 @@ public final class MonitoringEngine {
     }
 
     private void setupMetrics(SdkMeterProvider sdkMeterProvider) {
-        new OperatingSystemMXBeanMetric(
-                sdkMeterProvider,
-                config.isSystemMetricsGroupEnabled(),
-                config.isProcessMetricsGroupEnabled()
-        ).register();
-
-        if (config.isJvmMetricsGroupEnabled()) {
-            new MemoryMXBeanMetric(sdkMeterProvider).register();
-            new MemoryPoolMXBeanMetric(sdkMeterProvider).register();
-            new GarbageCollectorMXBeanMetric(sdkMeterProvider).register();
-        }
+        Pattern metricsFilterPattern = config.getMetricsFilterPattern();
+        new OperatingSystemMXBeanMetric(sdkMeterProvider, metricsFilterPattern).register();
+        new MemoryMXBeanMetric(sdkMeterProvider, metricsFilterPattern).register();
+        new MemoryPoolMXBeanMetric(sdkMeterProvider, metricsFilterPattern).register();
+        new GarbageCollectorMXBeanMetric(sdkMeterProvider, metricsFilterPattern).register();
 
         OpenTelemetryProxy.startIntervalMetricReader();
 

@@ -16,13 +16,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.regex.Pattern;
 
 public class OpenTelemetryLogHandlerTest {
     InMemoryLogExporter logExporter;
 
     @Before
     public void setup() throws Exception {
-        EngineConfiguration config = new EngineConfiguration("http://localhost", "test");
+        Pattern filter = Pattern.compile(".*");
+        EngineConfiguration config = new EngineConfiguration("http://localhost", "test", filter);
         Resource resource = RemotingResourceProvider.create(config);
         logExporter = InMemoryLogExporter.create();
         LogProcessor logProcessor = new SimpleLogProcessor(logExporter);
