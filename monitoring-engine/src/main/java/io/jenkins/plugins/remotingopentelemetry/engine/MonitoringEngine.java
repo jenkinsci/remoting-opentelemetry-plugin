@@ -3,6 +3,7 @@ package io.jenkins.plugins.remotingopentelemetry.engine;
 import io.jenkins.plugins.remotingopentelemetry.engine.log.BatchLogProcessor;
 import io.jenkins.plugins.remotingopentelemetry.engine.log.LogExporter;
 import io.jenkins.plugins.remotingopentelemetry.engine.log.LogProcessor;
+import io.jenkins.plugins.remotingopentelemetry.engine.metric.FilesystemMetric;
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.GarbageCollectorMXBeanMetric;
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.MemoryMXBeanMetric;
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.MemoryPoolMXBeanMetric;
@@ -16,9 +17,6 @@ import java.util.regex.Pattern;
 public final class MonitoringEngine {
     EngineConfiguration  config;
 
-    /**
-     * Disable the instantiation outside this class.
-     */
     public MonitoringEngine (EngineConfiguration config) {
         this.config = config;
 
@@ -43,8 +41,8 @@ public final class MonitoringEngine {
         new MemoryMXBeanMetric(sdkMeterProvider, metricsFilterPattern).register();
         new MemoryPoolMXBeanMetric(sdkMeterProvider, metricsFilterPattern).register();
         new GarbageCollectorMXBeanMetric(sdkMeterProvider, metricsFilterPattern).register();
+        new FilesystemMetric(sdkMeterProvider, metricsFilterPattern).register();
 
         OpenTelemetryProxy.startIntervalMetricReader();
-
     }
 }

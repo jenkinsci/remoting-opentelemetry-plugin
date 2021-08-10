@@ -45,25 +45,9 @@ See link:https://jenkins.io/doc/developer/development-environment/ide-configurat
 
 === CLI
 
-* Use the below commands.
+* Use the below commands to build remoting-opentelemetry-engine.jar locally.
 
 [source, console]
 ----
-$ mvn hpi:run
-----
-
-[source, console]
-----
-...
-INFO: Jenkins is fully up and running
-----
-
-* Open <http://localhost:8080/jenkins/> to test the plugin locally.
-
-Some plugins use multi module maven builds and you may need to change your `hpi:run` command to be run from the child directory, and build the other modules first.
-
-[source, console]
-----
-$ mvn install -P quick-build
-$ mvn -f plugin hpi:run
+$ mvn package -pl monitoring-engine
 ----

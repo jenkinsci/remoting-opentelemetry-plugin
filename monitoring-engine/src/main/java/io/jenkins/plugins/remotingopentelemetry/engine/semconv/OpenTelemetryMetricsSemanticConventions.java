@@ -15,6 +15,8 @@ public class OpenTelemetryMetricsSemanticConventions {
     public final static String SYSTEM_MEMORY_UTILIZATION = "system.memory.utilization";
     public final static String SYSTEM_PAGING_USAGE = "system.paging.usage";
     public final static String SYSTEM_PAGING_UTILIZATION = "system.paging.utilization";
+    public final static String SYSTEM_FILESYSTEM_USAGE =  "system.filesystem.usage";
+    public final static String SYSTEM_FILESYSTEM_UTILIZATION = "system.filesystem.utilization";
 
     public final static Labels STATE_FREE = Labels.of("state", "free");
     public final static Labels STATE_USED = Labels.of("state", "used");
