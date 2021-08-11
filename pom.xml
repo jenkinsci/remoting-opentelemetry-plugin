@@ -20,6 +20,7 @@
         <opentelemetry.version>1.4.1</opentelemetry.version>
     </properties>
     <name>Remoting monitoring with OpenTelemetry Parent POM</name>
+    <description>Publish Jenkins remoting metrics and logs to an OpenTelemetry endpoint.</description>
     <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
     <dependencyManagement>
