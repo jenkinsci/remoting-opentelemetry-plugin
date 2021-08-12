@@ -3,6 +3,7 @@ package io.jenkins.plugins.remotingopentelemetry.engine.log;
 import io.jenkins.plugins.remotingopentelemetry.engine.EngineConfiguration;
 import io.jenkins.plugins.remotingopentelemetry.engine.OpenTelemetryProxy;
 import io.jenkins.plugins.remotingopentelemetry.engine.RemotingResourceProvider;
+import io.jenkins.plugins.remotingopentelemetry.engine.TestEngineConfiguration;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.resources.Resource;
@@ -16,15 +17,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.regex.Pattern;
 
 public class OpenTelemetryLogHandlerTest {
     InMemoryLogExporter logExporter;
 
     @Before
     public void setup() throws Exception {
-        Pattern filter = Pattern.compile(".*");
-        EngineConfiguration config = new EngineConfiguration("http://localhost", "test", filter);
+        EngineConfiguration config = new TestEngineConfiguration();
         Resource resource = RemotingResourceProvider.create(config);
         logExporter = InMemoryLogExporter.create();
         LogProcessor logProcessor = new SimpleLogProcessor(logExporter);
