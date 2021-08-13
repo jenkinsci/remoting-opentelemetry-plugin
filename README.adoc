@@ -155,14 +155,14 @@ TBD
 Following metrics will be collected.
 
 |===
-|metrics|unit| label | key | description
+|metrics|unit| label key | label value | description
 |system.cpu.load|1||
 |System CPU load. See `com.sun.management.OperatingSystemMXBean.getSystemCpuLoad`
 
 |system.cpu.load.average.1m|||
 |System CPU load average 1 minute See `java.lang.management.OperatingSystemMXBean.getSystemLoadAverage`
 
-|system.memory.usage|bytes|state|`used`, `free`
+|system.memory.usage|byte|state|`used`, `free`
 |
 see `com.sun.management.OperatingSystemMXBean.getTotalPhysicalMemorySize`
 and `com.sun.management.OperatingSystemMXBean.getFreePhysicalMemorySize`
@@ -174,7 +174,7 @@ see `com.sun.management.OperatingSystemMXBean.getTotalPhysicalMemorySize`
 and `com.sun.management.OperatingSystemMXBean.getFreePhysicalMemorySize`.
 Report 0% if no physical memory is discovered by the JVM.
 
-|system.paging.usage|bytes|state|`used`, `free`
+|system.paging.usage|byte|state|`used`, `free`
 |
 see `com.sun.management.OperatingSystemMXBean.getFreeSwapSpaceSize`
 and `com.sun.management.OperatingSystemMXBean.getTotalSwapSpaceSize`.
@@ -184,6 +184,20 @@ and `com.sun.management.OperatingSystemMXBean.getTotalSwapSpaceSize`.
 see `com.sun.management.OperatingSystemMXBean.getFreeSwapSpaceSize`
 and `com.sun.management.OperatingSystemMXBean.getTotalSwapSpaceSize`.
 Report 0% if no swap memory is discovered by the JVM.
+
+.5+|system.filesystem.usage .5+|byte|device|(identifier)
+.5+|System level filesystem usage. Linux only (get mount data from /proc/mounts).
+|state| `used`, `free`
+|type| `ext4`, `tmpfs`, etc.
+|mode| `rw`,`ro`,etc.
+|mountpoint| (path)
+
+.5+|system.filesystem.utilization .5+|1|device|(identifier)
+.5+|System level filesystem utilization (0.0 to 1.0). Linux only (get mount data from /proc/mounts).
+|state| `used`, `free`
+|type| `ext4`, `tmpfs`, etc.
+|mode| `rw`,`ro`,etc.
+|mountpoint| (path)
 
 |process.cpu.load|%||
 |Process CPU load. See `com.sun.management.OperatingSystemMXBean.getProcessCpuLoad`.
