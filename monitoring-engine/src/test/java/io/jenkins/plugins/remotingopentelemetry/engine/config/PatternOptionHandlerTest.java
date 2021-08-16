@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public class PatternOptionHandlerTest {
-    static final String TEST_ENV1= "REMOTING_OTEL_TEST_ENV1";
+    static final String TEST_ENV1 = "REMOTING_OTEL_TEST_ENV1";
     static final String TEST_ENV2 = "REMOTING_OTEL_TEST_ENV2";
     static final String TEST_ENV3 = "REMOTING_OTEL_TEST_ENV3";
 
@@ -28,7 +28,7 @@ public class PatternOptionHandlerTest {
         Assert.assertTrue(config.value3.matcher("value3").matches());
     }
 
-    @Test
+    @Test(expected = ConfigurationParseException.class)
     public void testInvalidPattern() throws Exception {
         Map<String, String> env = new HashMap<>();
         env.put(TEST_ENV1, "^value1$");
@@ -37,13 +37,7 @@ public class PatternOptionHandlerTest {
         TestConfig config = new TestConfig();
         ConfigParser parser = new ConfigParser(config);
         parser.setEnv(env);
-        boolean hasError = false;
-        try {
-            parser.parse();
-        } catch (ConfigurationParseException e) {
-            hasError = true;
-        }
-        Assert.assertTrue(hasError);
+        parser.parse();
     }
 
     @Configuration

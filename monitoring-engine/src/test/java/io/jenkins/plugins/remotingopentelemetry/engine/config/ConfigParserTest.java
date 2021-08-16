@@ -24,7 +24,7 @@ public class ConfigParserTest {
         Assert.assertEquals("default value", config.value2);
     }
 
-    @Test
+    @Test(expected = ConfigurationParseException.class)
     public void testInvalidConfigOption() throws Exception {
         Map<String, String> env = new HashMap<>();
         env.put(TEST_ENV2, "override value");
@@ -32,14 +32,7 @@ public class ConfigParserTest {
         TestConfig config = new TestConfig();
         ConfigParser parser = new ConfigParser(config);
         parser.setEnv(env);
-
-        boolean hasError = false;
-        try {
-            parser.parse();
-        } catch (ConfigurationParseException e) {
-            hasError = true;
-        }
-        Assert.assertTrue(hasError);
+        parser.parse();
     }
 
     @Configuration
