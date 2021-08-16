@@ -23,16 +23,6 @@ public final class ConfigParser {
     }
 
     public void parse() throws ConfigurationParseException {
-        try {
-            doParse();
-        } catch (ConfigurationParseException e) {
-            throw e;
-        } catch (Throwable e) {
-            throw new ConfigurationParseException(e);
-        }
-    }
-
-    private void doParse() throws ConfigurationParseException {
         Class<?> clazz = this.bean.getClass();
         if (clazz.getAnnotation(Configuration.class) == null) {
             throw new ConfigurationParseException("Target object class is not annotated with @Configuration");

@@ -18,7 +18,7 @@ public class PreMain {
         try {
             configParser.parse();
         } catch (ConfigurationParseException e) {
-            LOGGER.log(Level.WARNING, "Failed to road configuration", e);
+            LOGGER.log(Level.WARNING, "Failed to load configuration", e);
             return;
         }
 
