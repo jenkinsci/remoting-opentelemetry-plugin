@@ -1,0 +1,28 @@
+jenkins:
+  nodes:
+    - permanent:
+        labelString: "linux docker test"
+        mode: NORMAL
+        name: "jnlp-node"
+        remoteFS: "/home/user"
+        launcher:
+          jnlp:
+            workDirSettings:
+              disabled: true
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+              workDirPath: "/home/jenkins/agent"
+
+    - permanent:
+        labelString: "linux docker test"
+        mode: NORMAL
+        name: "websocket-node"
+        remoteFS: "/home/user"
+        launcher:
+          jnlp:
+            workDirSettings:
+              disabled: true
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+              workDirPath: "/home/jenkins/agent"
+            webSocket: true

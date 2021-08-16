@@ -1,11 +1,64 @@
 version: "3"
 services:
+    jenkins_blueocean:
+        build: jenkins
+        volumes:
+            - ./jenkins-data:/var/jenkins_home
+            - ./jenkins/jenkins.yaml:/var/jenkins.yaml
+        environment:
+            - CASC_JENKINS_CONFIG=/var/jenkins.yaml
+        ports:
+            - 8080:8080
+            - 50000:50000
+        healthcheck:
+            test: curl --fail localhost:8080/login
+            interval: 1s
+            retries: 300
+        networks:
+            jenkins:
+                aliases:
+                    - blueocean.jen
+
+    jenkins_jnlp_agent:
+        build:
+            context: ./agent
+            args:
+                ENGINE_VERSION: 1.0-rc66.0edcb5079f9e
+        environment:
+            - OTEL_EXPORTER_OTLP_ENDPOINT=http://collector.otel:55680
+            - JENKINS_URL=http://blueocean.jen:8080
+            - JENKINS_AGENT_NAME=jnlp-node
+            - SERVICE_INSTANCE_ID=jnlp-node
+        networks:
+            - jenkins
+        depends_on:
+            jenkins_blueocean:
+                condition: service_healthy
+
+    jenkins_websocket_agent:
+        build:
+            context: ./agent
+            args:
+                ENGINE_VERSION: 1.0-rc66.0edcb5079f9e
+        environment:
+            - OTEL_EXPORTER_OTLP_ENDPOINT=http://collector.otel:55680
+            - JENKINS_URL=http://blueocean.jen:8080
+            - JENKINS_AGENT_NAME=websocket-node
+            - SERVICE_INSTANCE_ID=websocket-node
+        networks:
+            - jenkins
+        depends_on:
+            jenkins_blueocean:
+                condition: service_healthy
+
     prometheus:
         image: prom/prometheus
         ports:
             - 9090:9090
         volumes:
             - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+        networks:
+            - jenkins
 
     otel_collector:
         image: otel/opentelemetry-collector-contrib
@@ -20,6 +73,10 @@ services:
             - ./otel-collector/otel-collector-config.yaml:/otel-collector-config.yaml
         depends_on:
             - loki
+        networks:
+            jenkins:
+                aliases:
+                    - collector.otel
 
     loki:
         image: grafana/loki:2.1.0
@@ -28,6 +85,8 @@ services:
             - 3100
         volumes:
             - ./loki:/mnt/config
+        networks:
+            - jenkins
 
     grafana:
         image: grafana/grafana:latest
@@ -38,3 +97,9 @@ services:
             - ./grafana/datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
         depends_on:
             - loki
+        networks:
+            - jenkins
+
+networks:
+    jenkins:
+        driver: bridge

@@ -38,20 +38,47 @@ data(metrics, logs, and traces) for analysis in order to understand your
 software's performance and behavior.
 ____
 
+[#quick-demo]
+== Quick Demo
+
+Clone our link:https://github.com/jenkinsci/remoting-opentelemetry-plugin[repository], and then,
+
+[source,console]
+....
+$ cd example
+$ docker-compose up # it may take few minutes
+....
+
+This will set up
+
+* Jenkins controller
+** preconfigured with JCasC
+* Jenkins inbound agents
+** instrumented with our monitoring engine
+* OpenTelemetry Collector
+* Loki for Log aggregation
+* Prometheus for metric backend
+* Grafana for log and metric visualization
+** datasource is already configured
+
+Open Grafana: http://localhost:3000/explore
+
+You can see agents' log in Loki datasource and agents' metrics in Prometheus datasource.
+
 [#getting-started]
-== Getting started
+== Getting started with Inbound Agent
 
 ==== 1. Setup OpenTelemetry protocol endpoint and monitoring backends
 
 We prepare docker-compose.yaml to set up them.
 Use it if you just want to try.
 
-Clone repository from https://github.com/jenkinsci/remoting-opentelemetry-plugin.
+Clone our link:https://github.com/jenkinsci/remoting-opentelemetry-plugin[repository], and then
 
 [source,console]
 ....
 $ cd example
-$ docker-compose up
+$ docker-compose up otel_collector loki prometheus grafana
 ....
 
 This will set up
@@ -107,7 +134,7 @@ We can configure the monitoring engine via environment variables.
 .2+|OTEL_EXPORTER_OTLP_ENDPOINT .2+|true|`http://localhost:55680`
 |Target to which the exporter is going to send spans, metrics or logs.
 .2+|SERVICE_INSTANCE_ID .2+|false|90caeb02-a5ba-4827-bb3e-63babecfa893
-|The string ID of the service instance. If not provided, UUID will be generated and used every time the agent launches.
+|The string ID of the service instance. If not provided, UUID will be generated every time the agent launches.
 .2+|REMOTING_OTEL_METRIC_FILTER .2+|false|"system\.cpu\..*"
 |Set regex filter for metrics. The metrics whose name match the regex will be collected.
 The default value is ".*" and collect all the metrics.
