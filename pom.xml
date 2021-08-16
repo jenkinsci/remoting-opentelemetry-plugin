@@ -17,7 +17,7 @@
         <jenkins.version>2.277.1</jenkins.version>
         <java.level>8</java.level>
         <gitHubRepo>jenkinsci/remoting-opentelemetry-plugin</gitHubRepo>
-        <opentelemetry.version>1.4.1</opentelemetry.version>
+        <opentelemetry.version>1.5.0-alpha</opentelemetry.version>
     </properties>
     <name>Remoting monitoring with OpenTelemetry Parent POM</name>
     <description>Publish Jenkins remoting metrics and logs to an OpenTelemetry endpoint.</description>
