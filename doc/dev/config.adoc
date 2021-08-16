@@ -1,0 +1,89 @@
+= Config framework
+
+We are creating and using simple config framework.
+
+Source code is in the
+link:{docdir}/../../monitoring-engine/src/main/java/io/jenkins/plugins/remotingopentelemetry/engine/config/[io.jenkins.plugins.remotingopentelemetry.engine.config]
+package
+
+== Quick example
+
+=== Declare Config class
+
+[source, java]
+....
+import io.jenkins.plugins.remotingopentelemetry.engine.config.ConfigOption;
+import io.jenkins.plugins.remotingopentelemetry.engine.config.Configuration;
+import java.util.regex.Pattern;
+
+@Configuration
+public class SampleConfiguration {
+    @ConfigOption(env = "SOME_TOKEN", required = true) // Get config option from "SOME_TOKEN" env variable
+    public String token;
+
+    @ConfigOption(env = "FILTER_PATTERN")
+    public Pattern filter = Pattern.compile("^default value$");
+}
+....
+
+=== Parse configuration
+
+[source, console]
+....
+$ export SOME_TOKEN="ABCDEFGH"
+$ export FILTER_PATTERN="system\..*"
+....
+
+[source,java]
+....
+import io.jenkins.plugins.remotingopentelemetry.engine.config.ConfigParser;
+import io.jenkins.plugins.remotingopentelemetry.engine.config.ConfigurationParseException;
+
+public class Main {
+    public static void main(String[] args){
+      SampleConfiguration config = new SampleConfiguration();
+      ConfigParser parser = new ConfigParser(config);
+      try {
+          parser.parse();
+      } catch (ConfigurationParseException e) {
+          LOGGER.log(Level.WARNING, "Failed to load configuration", e);
+          return;
+      }
+      assert config.token.equals("ABCDEFGH");
+      assert config.filter.matcher("system.cpu.load").matches();
+    }
+}
+....
+
+== Specification
+
+=== Option field
+
+Option field must be public and annotated with `@ConfigOption`
+
+We currently support only the following field type
+
+- String
+- Pattern
+
+You can set default value, and it will be used when parser cannot find any configuration value.
+
+=== ConfigOption annotation
+
+`@ConfigOption` declares how to get the configuration value.
+
+It supports loading config option from environment variables using an `env` attribute,
+and planning to add more attributes if needed to load config option from files, system properties, etc...
+
+==== ConfigOption attributes
+
+===== env
+`String`, required
+
+Specify the environment variable from which the parser gets the configuration value.
+
+===== required
+`boolean`, optional
+
+Tell the parser if the configuration field is required or not.
+The parser throws `ConfigurationParseError` when it cannot find any configuration value while the filed is required.

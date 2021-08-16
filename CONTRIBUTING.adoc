@@ -67,3 +67,9 @@ Some plugins use multi module maven builds and you may need to change your `hpi:
 $ mvn install -P quick-build
 $ mvn -f plugin hpi:run
 ----
+
+=== Configuration framework
+
+We are creating and using simple configuration framework.
+
+See link:./doc/dev/config.adoc[config documentation] for details
