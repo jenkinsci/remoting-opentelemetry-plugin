@@ -51,3 +51,9 @@ See link:https://jenkins.io/doc/developer/development-environment/ide-configurat
 ----
 $ mvn package -pl monitoring-engine
 ----
+
+=== Configuration framework
+
+We are creating and using simple configuration framework.
+
+See link:./doc/dev/config.adoc[config documentation] for details
