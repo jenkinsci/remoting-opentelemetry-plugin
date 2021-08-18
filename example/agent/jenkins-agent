@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+java \
+-javaagent:/usr/share/remoting-otel/engine.jar \
+-jar /usr/share/jenkins/agent.jar \
+-jnlpUrl $JENKINS_URL/computer/$JENKINS_AGENT_NAME/jenkins-agent.jnlp \
+-loggingConfig /usr/share/remoting-otel/logging.properties
