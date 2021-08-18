@@ -41,6 +41,12 @@ ____
 [#quick-demo]
 == Quick Demo
 
+=== Using Minikube and Kubernetes plugins
+
+Visit https://github.com/Aki-7/remoting-opentelemetry-kubernetes-demo
+
+=== Using Docker compose
+
 Clone our link:https://github.com/jenkinsci/remoting-opentelemetry-plugin[repository], and then,
 
 [source,console]
