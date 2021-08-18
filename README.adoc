@@ -64,7 +64,14 @@ This will set up
 
 ==== 2. Download monitoring-engine
 
-Download `remoting-opentelemetry-engine-<tag>.jar` from link:https://github.com/jenkinsci/remoting-opentelemetry-plugin/releases[Release Page].
+Download `remoting-opentelemetry-engine.jar` from Jenkins maven repository.
+
+:version: 1.0-rc66.0edcb5079f9e
+[source,console,subs="attributes"]
+....
+$ curl https://repo.jenkins-ci.org/artifactory/releases/io/jenkins/plugins/remoting-opentelemetry-engine/{version}/remoting-opentelemetry-engine-{version}.jar -o remoting-opentelemetry-engine.jar
+....
+:!version:
 
 We will use this JAR as java agent when launching agent.
 
