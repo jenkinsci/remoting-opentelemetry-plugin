@@ -127,7 +127,7 @@ Setup jenkins controller and launch agent with `-javaagent` and `-loggingConfig`
 ....
 $ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:55680
 $ java \
--javaagent remoting-opentelemetry-engine.jar \
+-javaagent:remoting-opentelemetry-engine.jar \
 -jar agent.jar \
 -jnlpUrl <jnlp url> \
 -loggingConfig logging.properties
