@@ -29,4 +29,6 @@ public class OpenTelemetryMetricsSemanticConventions {
 
     public final static String RUNTIME_JVM_GC_TIME = "runtime.jvm.gc.time";
     public final static String RUNTIME_JVM_GC_COUNT = "runtime.jvm.gc.count";
+
+    public final static String REMOTING_CONNECTION_ESTABLISHMENTS_COUNT = "jenkins.agent.connection.establishments.count";
 }
