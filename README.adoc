@@ -148,6 +148,7 @@ We can configure the monitoring engine via environment variables.
 |Target to which the exporter is going to send spans, metrics or logs.
 .2+|SERVICE_INSTANCE_ID .2+|false|90caeb02-a5ba-4827-bb3e-63babecfa893
 |The string ID of the service instance. If not provided, UUID will be generated every time the agent launches.
+Note: If you don't set this value, the service instance id will be changed everytime the agent restarts.
 .2+|REMOTING_OTEL_METRIC_FILTER .2+|false|"system\.cpu\..*"
 |Set regex filter for metrics. The metrics whose name match the regex will be collected.
 The default value is ".*" and collect all the metrics.
@@ -196,6 +197,9 @@ Following metrics will be collected.
 
 |===
 |metrics|unit| label key | label value | description
+|jenkins.agent.connection.establishments.count|1||
+|The count of connection establishments. The value will be reset when the agent restarts.
+
 |system.cpu.load|1||
 |System CPU load. See `com.sun.management.OperatingSystemMXBean.getSystemCpuLoad`
 

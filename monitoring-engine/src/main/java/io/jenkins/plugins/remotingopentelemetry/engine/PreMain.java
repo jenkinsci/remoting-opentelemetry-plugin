@@ -22,6 +22,8 @@ public class PreMain {
             return;
         }
 
+        LOGGER.log(Level.INFO, "Start remoting monitoring (service instance id: {0})", config.getServiceInstanceId());
+
         MonitoringEngine engine = new MonitoringEngine(config);
         engine.start();
     }

@@ -12,6 +12,14 @@
     <name>Remoting monitoring with OpenTelemetry</name>
     <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.jenkins.plugins</groupId>
+            <artifactId>remoting-opentelemetry-engine</artifactId>
+            <version>${revision}${changelist}</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

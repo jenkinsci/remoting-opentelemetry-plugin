@@ -8,6 +8,7 @@ import io.jenkins.plugins.remotingopentelemetry.engine.metric.GarbageCollectorMX
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.MemoryMXBeanMetric;
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.MemoryPoolMXBeanMetric;
 import io.jenkins.plugins.remotingopentelemetry.engine.metric.OperatingSystemMXBeanMetric;
+import io.jenkins.plugins.remotingopentelemetry.engine.metric.ConnectionEstablishmentsCountMetric;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.resources.Resource;
@@ -42,6 +43,7 @@ public final class MonitoringEngine {
         new MemoryPoolMXBeanMetric(sdkMeterProvider, metricsFilterPattern).register();
         new GarbageCollectorMXBeanMetric(sdkMeterProvider, metricsFilterPattern).register();
         new FilesystemMetric(sdkMeterProvider, metricsFilterPattern).register();
+        new ConnectionEstablishmentsCountMetric(sdkMeterProvider, metricsFilterPattern).register();
 
         OpenTelemetryProxy.startIntervalMetricReader();
     }
