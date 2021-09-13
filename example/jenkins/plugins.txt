@@ -1,2 +1,3 @@
 configuration-as-code:latest
 blueocean:1.24.7
+remoting-opentelemetry:latest
