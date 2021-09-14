@@ -1,7 +1,6 @@
 FROM jenkins/agent:jdk11
 
-ARG ENGINE_VERSION
-ARG ENGINE_LOCATION="https://repo.jenkins-ci.org/artifactory/releases/io/jenkins/plugins/remoting-opentelemetry-engine/$ENGINE_VERSION/remoting-opentelemetry-engine-$ENGINE_VERSION.jar"
+ARG ENGINE_LOCATION="https://repo.jenkins-ci.org/artifactory/releases/io/jenkins/plugins/remoting-opentelemetry-engine/\[RELEASE\]/remoting-opentelemetry-engine-\[RELEASE\].jar"
 ARG user=jenkins
 USER root
 RUN apt update && apt install curl

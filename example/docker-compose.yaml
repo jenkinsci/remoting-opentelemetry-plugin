@@ -22,8 +22,6 @@ services:
     jenkins_jnlp_agent:
         build:
             context: ./agent
-            args:
-                ENGINE_VERSION: 1.0-rc66.0edcb5079f9e
         environment:
             - OTEL_EXPORTER_OTLP_ENDPOINT=http://collector.otel:55680
             - JENKINS_URL=http://blueocean.jen:8080
@@ -38,8 +36,6 @@ services:
     jenkins_websocket_agent:
         build:
             context: ./agent
-            args:
-                ENGINE_VERSION: 1.0-rc66.0edcb5079f9e
         environment:
             - OTEL_EXPORTER_OTLP_ENDPOINT=http://collector.otel:55680
             - JENKINS_URL=http://blueocean.jen:8080

@@ -74,7 +74,16 @@ You can see agents' log in Loki datasource and agents' metrics in Prometheus dat
 [#getting-started]
 == Getting started with Inbound Agent
 
-==== 1. Setup OpenTelemetry protocol endpoint and monitoring backends
+==== 1. Install Remoting monitoring with OpenTelemetry Plugin
+
+Please install Remoting monitoring with OpenTelemetry Plugin into your Jenkins controller.
+
+If you want, you can set up Jenkins controller with this plugin installed using Docker Compose.
+Please <<2. Setup OpenTelemetry protocol endpoint and monitoring backends, the next section>> for details.
+
+Plugin page: https://plugins.jenkins.io/remoting-opentelemetry
+
+==== 2. Setup OpenTelemetry protocol endpoint and monitoring backends
 
 We prepare docker-compose.yaml to set up them.
 Use it if you just want to try.
@@ -84,6 +93,8 @@ Clone our link:https://github.com/jenkinsci/remoting-opentelemetry-plugin[reposi
 [source,console]
 ....
 $ cd example
+$ docker-compose up otel_collector loki prometheus grafana jenkins_blueocean
+# or if you use your own Jenkins controller,
 $ docker-compose up otel_collector loki prometheus grafana
 ....
 
@@ -94,21 +105,22 @@ This will set up
 * Prometheus for metric backend
 * Grafana for log and metric visualization
 ** datasource is already configured
+* Jenkins Controller
+** Remoting monitoring with OpenTelemetry Plugin is preinstalled.
 
-==== 2. Download monitoring-engine
+==== 3. Download monitoring-engine
 
 Download `remoting-opentelemetry-engine.jar` from Jenkins maven repository.
 
-:version: 1.0-rc66.0edcb5079f9e
 [source,console,subs="attributes"]
 ....
-$ curl https://repo.jenkins-ci.org/artifactory/releases/io/jenkins/plugins/remoting-opentelemetry-engine/{version}/remoting-opentelemetry-engine-{version}.jar -o remoting-opentelemetry-engine.jar
+$ curl "https://repo.jenkins-ci.org/artifactory/releases/io/jenkins/plugins/remoting-opentelemetry-engine/[RELEASE]/remoting-opentelemetry-engine-[RELEASE].jar" -o remoting-opentelemetry-engine.jar
 ....
 :!version:
 
 We will use this JAR as java agent when launching agent.
 
-==== 3. Create `logging.properties` file.
+==== 4. Create `logging.properties` file.
 
 Use `io.jenkins.plugins.remotingopentelemetry.engine.log.OpenTelemetryLogHandler` for handler.
 
@@ -119,7 +131,7 @@ handlers=io.jenkins.plugins.remotingopentelemetry.engine.log.OpenTelemetryLogHan
 .level=INFO
 ....
 
-==== 4. Launch Jenkins agent
+==== 5. Launch Jenkins agent
 
 Setup jenkins controller and launch agent with `-javaagent` and `-loggingConfig` option.
 
@@ -133,7 +145,7 @@ $ java \
 -loggingConfig logging.properties
 ....
 
-==== 5. Explore logs and metrics
+==== 6. Explore logs and metrics
 
 Open Grafana: http://localhost:3000/explore
 
