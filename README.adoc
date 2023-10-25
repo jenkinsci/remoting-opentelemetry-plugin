@@ -190,7 +190,7 @@ Following attributes will be provided.
 |key|example|description
 
 |log.level|INFO|Log level name. See `java.util.logging.Level.getName`.
-|code.namespace|hudson.remoting.jnlp.Main$CuiListener|The name of the class that (allegedly) issued the logging request.
+|code.namespace|hudson.remoting.Launcher$CuiListener|The name of the class that (allegedly) issued the logging request.
 |code.function|status|The name of the method that (allegedly) issued the logging request.
 |exception.type|java.io.IOException|The class name of the throwable associated with the log record.
 |exception.message|Broken pipe|The detail message string of the throwable associated with the log record.
